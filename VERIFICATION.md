@@ -1,5 +1,18 @@
 # Verification record
 
+## 24 October 2026 — cross-competition data pipeline
+
+This section supersedes the workstation limitations recorded in the historical sections below.
+
+- The full verification driver passed backend engine, configuration, import, route, sync, migration, live HTTP and ASGI suites. There are now **59 backend tests** (including 12 live HTTP tests and 3 ASGI tests) and **9 frontend domain tests**. Both Alembic tests ran successfully, including upgrade/downgrade through schema revision `0004`; they were not skipped. The latest API contract and result-batch changes were additionally checked in the affected suites.
+- The production frontend build passed. Browser checks verified the multi-competition match feed, team search and the existing qualification explorer. A screenshot is saved locally at `artifacts/multi-competition-feed.png` (ignored by Git).
+- The running API's local scheduler fetched **27 real ESPNcricinfo RSS headlines** without credentials. The publisher timestamp was **18 October 2026**, so the app correctly marked them delayed on 24 October. This proves transport and freshness handling, not current live scores.
+- HTTP fixtures exercise the production client and database cache over localhost, including pagination, page limits, repeated pages, daily quotas, 429s, missing keys, malformed XML, old timestamps, lease overlap, retained snapshots, series-name discovery and generic `/match_info` result batching. These are contract-shaped local responses; authenticated CricketData access has not been verified.
+- Orbit discovery worked; its candidate structured providers required accounts. The public structured ESPN endpoint returned 403 and was not used. Postman CLI is unavailable, so the HTTP fixtures use Python's local HTTP server rather than Postman simulation.
+- PostgreSQL/Redis/Celery runtime, licensed-provider coverage, official tournament regulations and authoritative NRR remain unverified. The qualification examples remain synthetic. No current real qualification table or guarantee of every-tournament coverage is claimed.
+
+Local logs: `artifacts/verification-live.log`, `artifacts/live-http-tests.log` and `artifacts/api-live.stderr.log`. These are intentionally excluded from Git.
+
 ## Frontend and ingestion update
 
 `python scripts/verify_local.py` passed **42 backend checks and 9 frontend domain checks**. Two Alembic tests were explicitly skipped because Alembic is not installed. HTTP integration and frontend compilation were not included; the driver prints those exclusions.

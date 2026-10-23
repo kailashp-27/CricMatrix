@@ -1,3 +1,4 @@
+import asyncio
 import re
 from contextlib import asynccontextmanager
 
@@ -12,11 +13,13 @@ from .config import settings
 from .database import Base, SessionLocal, engine, session_dependency
 from .engine import load_snapshot, standings, validate_overrides
 from .jobs import read_job, redis_client, submit
-from .models import Season, Stage, StageRule, SyncSource, Tournament
+from .models import LiveFeed, Season, Stage, StageRule, SyncSource, Tournament
 from .rules import TEMPLATES, get_rules
-from .schemas import PredictionRequest
+from .schemas import LiveFeedResponse, PredictionRequest
 from .seed import seed_demo
 from .sync import sync_status
+from .live import read_feed
+from .scheduler import run_local_scheduler
 
 
 @asynccontextmanager
@@ -26,7 +29,14 @@ async def lifespan(app):
         Base.metadata.create_all(engine)
         with SessionLocal() as session:
             seed_demo(session)
-    yield
+    stop = asyncio.Event()
+    scheduler = asyncio.create_task(run_local_scheduler(stop)) if settings.job_mode == 'local' else None
+    try:
+        yield
+    finally:
+        stop.set()
+        if scheduler:
+            await scheduler
 
 
 app = FastAPI(title='CricMatrix qualification API', version='0.3.0', lifespan=lifespan,
@@ -45,6 +55,7 @@ def health(session: Session = Depends(session_dependency)):
         session.execute(text('SELECT 1'))
         session.execute(select(StageRule.stage_id).limit(1))
         session.execute(select(SyncSource.stage_id).limit(1))
+        session.execute(select(LiveFeed.provider).limit(1))
     except SQLAlchemyError as exc:
         raise HTTPException(503, 'Database unavailable or schema not initialized') from exc
     if settings.job_mode == 'celery':
@@ -75,6 +86,12 @@ def tournaments(session: Session = Depends(session_dependency)):
             seasons.append({'id': season.id, 'name': season.name, 'source': season.source, 'stages': stages})
         result.append({'id': tournament.id, 'name': tournament.name, 'country': tournament.country, 'seasons': seasons})
     return result
+
+
+@app.get('/api/live', response_model=LiveFeedResponse)
+def live_matches(session: Session = Depends(session_dependency)):
+    """Cached multi-competition matches. Reading never spends provider quota."""
+    return read_feed(session)
 
 
 def snapshot_or_404(session, stage_id):

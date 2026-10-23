@@ -1,89 +1,114 @@
-# Crease
+# CricMatrix
 
-A cricket qualification lab: change the remaining results, see the points table move, and estimate each team's path to the next round.
+CricMatrix follows cricket across competitions and explores how remaining results can change a team's qualification chances. The app uses React and TypeScript with a FastAPI backend.
 
-The runtime foundation, stage-rules engine, prediction algorithms, expanded frontend and ingestion pipeline are implemented in source. See [architecture](docs/architecture.md), [frontend guide](docs/frontend.md), [data pipeline](docs/data-pipeline.md) and [configuration examples](examples/README.md). PostgreSQL/Redis/Celery runtime and frontend build/browser verification are still blocked in this workstation environment; see [verification](VERIFICATION.md).
+## Current data status
 
-The project includes synthetic IPL, BBL, PSL and T20 World Cup group examples. It does **not** contain current fixtures, live scores or verified official season rules.
+The score feed and the qualification explorer have different data requirements:
 
-## What's implemented
+| Feature | Available now | Limits |
+| --- | --- | --- |
+| Cross-competition score feed | Public ESPNcricinfo RSS, no account required | Score headlines only; competition names, full schedules and match-state flags are absent. Publisher timestamps determine freshness. |
+| Structured match discovery | CricketData adapter for T20, ODI and Test matches | Requires your private API key, provider coverage and a positive daily request budget. Not live-verified with an account yet. |
+| Tournament discovery | Paginated CricketData series discovery and cached competition names | Coverage depends on the provider and plan; page limits are reported explicitly. |
+| Qualification explorer | IPL, BBL, PSL and World Cup **synthetic examples**, plus operator-configured seasons | Examples are not current official seasons. Real qualification requires complete stage schedules, confirmed rules, results and trusted NRR. |
 
-- React + TypeScript dashboard with Zustand, reality/what-if modes and responsive styling.
-- Team focus, remaining/results fixture filters, per-stage saved picks, scenario links, CSV export, washout controls and refresh notices.
-- Instant browser-side points updates; debounced 1,000-run scenario predictions and 10,000-run baseline predictions.
-- Python/FastAPI, SQLAlchemy models, PostgreSQL configuration and a SQLite development option.
-- Exact Top-k points elimination using candidate-set enumeration and NetworkX max flow, including washouts.
-- NumPy Monte Carlo with equal or illustrative Elo-based win probabilities, reproducible seeds and sampling intervals.
-- Async prediction jobs, state-aware cache keys, Redis/Celery integration, and a bounded local runner.
-- Initial Alembic migration and transactional operator import with optimistic revision checks.
-- A dedicated rules table, validated season provisioning, schedule completeness guards, ordered wins/NRR tie-breakers and revision-safe rule updates.
-- Docker Compose for the database, Redis, API, worker, scheduler and frontend.
-- Durable sync configuration/run history, daily provider request budgets, overlap leases, stale-data status and post-sync recalculation. CricketData activation requires a real key, verified mappings and a positive budget.
+**No provider account is configured.** On 24 October 2026, a direct request to ESPNcricinfo's public feed succeeded, but its publication timestamp was 18 October 2026. The app therefore marks that snapshot as delayed. A successful HTTP response does not mean the scores are current. The structured ESPN endpoint returned HTTP 403 and is not used.
 
-Read [PLAN.md](PLAN.md) for the architecture, mathematics and remaining milestones.
+CricMatrix does not claim coverage of every tournament. It accepts the competitions returned by the provider without an IPL-only allowlist. Bilateral series, knockout stages, Test championship points percentages, bonus-point leagues and other unsupported scoring systems cannot be treated as ordinary 2/1/0 qualification tables.
 
-## Configure a tournament season
+## Run locally on Windows
 
-Four versioned example files and a JSON Schema are provided under `examples`. Their match counts follow the illustrative 10-team/14-match IPL-style, 8-team/10-match BBL-style, 6-team/10-match PSL-style and two four-team World Cup group setups. They are not official season schedules or regulations.
-
-```powershell
-$env:PYTHONPATH = 'backend'
-python -m app.manage validate-config examples\ipl-season.json
-python -m app.manage init-demo
-python -m app.manage apply-config examples\ipl-season.json
-```
-
-Provisioning creates a new season atomically. Reapplying the same configuration preserves recorded results. Draft/incomplete schedules can be stored but cannot be used for predictions. See [examples/README.md](examples/README.md) for group configuration and safe rule updates.
-
-## Start locally on Windows
-
-Python 3.12+ and Node.js 22+ are recommended. From `D:\Projects\IPL`:
+Prerequisites: Python 3.12+ and Node.js 22+.
 
 ```powershell
 py -3.12 -m venv .venv
 .\.venv\Scripts\python.exe -m pip install -r backend\requirements.txt
-$env:PYTHONPATH = 'backend'
-.\.venv\Scripts\python.exe -m uvicorn app.main:app --host 127.0.0.1 --port 8000
+Copy-Item .env.example .env
+.\START_BACKEND.ps1
 ```
 
-In another terminal:
+The script serves the API at `http://127.0.0.1:8010`. In a second terminal:
 
 ```powershell
-cd D:\Projects\IPL\frontend
-npm install
+cd frontend
+npm ci
 npm run dev
 ```
 
-Open http://127.0.0.1:5173 and API documentation at http://127.0.0.1:8000/docs. Vite proxies `/api` to the backend. First startup creates a local `crease.db` and seeds the demo. Keep the local runner to a single API process; its jobs are in memory and disappear on restart.
+Open [CricMatrix](http://127.0.0.1:5173/) or the [API documentation](http://127.0.0.1:8010/docs). Vite proxies `/api` to port 8010. Local mode uses SQLite and a bounded prediction worker; Redis is optional. Keep local mode to one API process. Demo startup creates missing tables and seeds examples without resetting existing results.
 
-No provider key is needed for the demo. Local mode does not require Redis or Celery to be running. The full requirements include Celery for the Docker path.
+The local scheduler refreshes stored sources automatically. Restart the backend after changing Python files or `.env`; Vite reloads frontend changes automatically.
 
-## Start with PostgreSQL, Redis and Celery
+## Score feed configuration
 
-Start Docker Desktop with Linux containers. Create `.env` from `.env.example`, replace `POSTGRES_PASSWORD` with a long random value using URL-safe characters, then:
+Defaults in `.env.example` use the public feed:
 
-```powershell
-docker compose up --build
+```dotenv
+LIVE_FEED_ENABLED=true
+LIVE_FEED_PROVIDER=espn_rss
+LIVE_FEED_URL=https://static.espncricinfo.com/rss/livescores.xml
+LIVE_POLL_SECONDS=120
+LIVE_MAX_PAGES=4
 ```
 
-Open http://127.0.0.1:5173. The API applies migrations before startup. The worker runs simulations and Beat refreshes baselines at 00:00 and 12:00 UTC. A separate minute dispatcher schedules enabled, due sync sources according to their interval (twice daily by default). **No provider source is enabled by default.** Database and Redis ports are internal; web ports bind to localhost. This is a local development stack, not a public production deployment.
+The server fetches once per interval, shares the cached result with all visitors, persists the last successful response, and uses a database lease to prevent overlapping refreshes. Browser refresh reads the cache and does not force provider requests. The browser checks once a minute while visible. Failures preserve the last snapshot and mark it stale. RSS match states stay unknown; a batting asterisk is not proof a match is live.
 
-For a non-demo database, set `DEMO_SEED=false` and apply `alembic upgrade head` from `backend` before starting the API. Alembic reads `DATABASE_URL`; local API startup creates tables only when demo seeding is enabled.
+To use structured CricketData discovery, obtain your own key from [CricketData](https://cricketdata.org/), place it privately in `.env`, select `LIVE_FEED_PROVIDER=cricketdata`, and set `PROVIDER_DAILY_BUDGET` above zero. The key stays on the server. Do not commit it or put it in a `VITE_` variable.
+
+The adapter calls the documented generic `/currentMatches`, `/series`, `/series_info` and `/match_info` endpoints. It follows pagination and marks lists partial when `LIVE_MAX_PAGES` is reached. Match scores retain each innings and cricket overs notation. Tournament names refresh daily. Missing state flags remain unknown. No automatic fallback silently substitutes RSS for a failed configured provider.
+
+**Budget deliberately:** a 900-second interval uses 96 requests/day for just one match page, before series discovery and configured-stage result syncs. Multiple pages multiply that number. All CricketData requests share the persistent UTC daily budget; failed requests still count. Choose a provider plan and interval that fit your coverage needs. Setting a local budget does not purchase provider access.
+
+## Discover real tournaments and schedules
+
+From the project root, using the same `.env` and database as the API:
+
+```powershell
+$env:PYTHONPATH = 'backend'
+.\.venv\Scripts\python.exe -m app.live refresh
+.\.venv\Scripts\python.exe -m app.live series
+.\.venv\Scripts\python.exe -m app.live series --search 'World Cup'
+.\.venv\Scripts\python.exe -m app.live series-info <provider-series-uuid> --output artifacts\series.json
+```
+
+`refresh` uses your selected feed. The `series` commands require a CricketData key and budget. They discover competitions rather than hardcoding IPL, BBL or PSL. Series information is for schedule review; it does not certify stage completeness or official qualification regulations. Provider responses can cover only part of a competition.
+
+## Configure real qualification
+
+1. Review the discovered schedule and the competition's official regulations. Separate league/group stages from finals and other knockout games.
+2. Create a season definition using [the configuration examples](examples/README.md). Use real team and fixture identities, the full stage schedule, and verified qualification spots and tie-breakers. Incomplete schedules must use `schedule_complete: false`; predictions remain disabled.
+3. Validate and apply it:
+
+```powershell
+$env:PYTHONPATH = 'backend'
+.\.venv\Scripts\python.exe -m app.manage validate-config path\season.json
+.\.venv\Scripts\python.exe -m app.manage apply-config path\season.json
+```
+
+4. Configure each stage's provider mapping using the [sync guide](docs/data-pipeline.md), then run it:
+
+```powershell
+.\.venv\Scripts\python.exe -m app.sync configure path\source.json
+.\.venv\Scripts\python.exe -m app.sync run <stage-id> --force
+```
+
+Enabled sources subsequently refresh on their configured interval in both local mode and Celery mode. Fixture and exact team-name mappings must cover the entire stage. Real provider results cannot be mixed into demo seasons. Completed results update points transactionally and trigger baseline recalculation. NRR is not inferred from winners or score headlines; provider-mapped stages show unverified NRR until a complete verified NRR snapshot is imported.
+
+There is no public configuration/write endpoint. Picks affect the scenario only, never stored match results. Reapplying an identical season definition preserves results; changes to existing rules use optimistic revisions.
 
 ## API
 
 | Method | Path | Purpose |
 | --- | --- | --- |
-| GET | `/api/health` | Database and configured Redis connectivity |
-| GET | `/api/health/live` | API liveness without dependency checks |
-| GET | `/api/health/ready` | Database/schema and configured Redis readiness |
-| GET | `/api/tournaments` | Tournaments, seasons, stages and rules |
-| GET | `/api/rule-templates` | Illustrative league/group configurations |
-| GET | `/api/stages/{id}/rules` | Authoritative rules and current revision |
-| GET | `/api/stages/{id}/sync` | Sanitized provider freshness/status |
-| GET | `/api/stages/{id}` | Stage snapshot and standings |
-| POST | `/api/stages/{id}/predictions` | Submit/reuse a job; HTTP 202 and Location header |
-| GET | `/api/predictions/{id}` | queued/running/completed/failed job state |
+| GET | `/api/live` | Cached cross-competition scores, provider, freshness, errors and partial-coverage flags |
+| GET | `/api/tournaments` | Configured qualification tournaments, seasons and stages |
+| GET | `/api/stages/{id}` | Stage snapshot, standings and source freshness |
+| GET | `/api/stages/{id}/rules` | Stage rules and revision |
+| GET | `/api/stages/{id}/sync` | Sanitized provider sync status |
+| POST | `/api/stages/{id}/predictions` | Submit or reuse a prediction job |
+| GET | `/api/predictions/{id}` | Prediction job state and result |
+| GET | `/api/health`, `/api/health/live`, `/api/health/ready` | Runtime checks |
 
 Example prediction body:
 
@@ -91,47 +116,45 @@ Example prediction body:
 {"overrides": {}, "iterations": 1000, "model": "equal", "washout_probability": 0.03, "seed": 42}
 ```
 
-`overrides` maps an unresolved fixture ID to `home`, `away` or `washout`. Completed or foreign-stage fixtures are rejected. Iterations are limited to 100–10,000. Jobs expire after one hour; cache identity includes the complete stage state, revision, request and engine version. Scenario calls do not write fixture results.
+The UI supports reality/what-if modes, per-stage saved picks, scenario links, CSV exports, fixture filters and team focus. The backend uses exact points-feasibility checks and Monte Carlo estimates with sampling intervals. Completed or foreign-stage fixtures cannot be overridden.
 
-## Import normalized results
+## Docker with PostgreSQL, Redis and Celery
 
-There is no public write endpoint. An operator can update a configured stage through a local JSON file:
-
-```json
-{"expected_revision": 1, "outcomes": {"ipl-demo-0-m31": "home"}, "nrr": {"ipl-CSK": 0.321}}
-```
-
-Use actual fixture/team IDs and the current revision from the stage endpoint. From `backend`, with the same database environment as the API:
+Set `POSTGRES_PASSWORD` in `.env`, then:
 
 ```powershell
-..\.venv\Scripts\python.exe -m app.import_results ipl-demo-0 results.json
+docker compose up --build
 ```
 
-The import validates all IDs before writing, commits changes atomically, increases the revision only when state changes, and requests a new baseline after commit. Retrying the same values at the current revision is a no-op. The newer [sync pipeline](docs/data-pipeline.md) wraps ingestion in leases, freshness checks, run history and request budgets. The browser checks stored snapshots every minute while visible; this is polling rather than push notification.
+The Compose frontend uses port 5173; its API uses port 8000. Compose runs Alembic migrations, workers and Beat. Beat dispatches due stage syncs and the shared match-feed refresh. Ports bind to localhost. This is a development stack, not a public production deployment.
 
-## Verification
-
-From the project root, with dependencies installed:
-
-```powershell
-python scripts\verify_local.py
-```
-
-This runs backend suites in separate processes and dependency-free frontend logic tests. Add `--http --build` in a normal environment with installed dependencies to include ASGI and frontend build checks. Individual commands:
+For a non-demo database, apply migrations before starting the API:
 
 ```powershell
 $env:PYTHONPATH = 'backend'
-.\.venv\Scripts\python.exe -m unittest discover -s backend\tests -v
-cd frontend
-npm run build
+cd backend
+..\.venv\Scripts\python.exe -m alembic upgrade head
 ```
 
-Core tests compare flow feasibility with all 27 outcomes of each of 35 small schedules. Additional tests cover final NRR order, point conservation, fixed picks, reproducibility, seed idempotence, groups, jobs, ingestion failures, leases, request budgets and frontend domain behavior. `test_api.py` uses FastAPI TestClient; `test_routes.py` checks service/route behavior directly where localhost event-loop sockets are unavailable.
+Schema revision `0004` adds the persistent live-feed cache. Back up an existing production database before normal migration operations.
+
+## Verification
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -r backend\requirements-dev.txt
+.\.venv\Scripts\python.exe scripts\verify_local.py --http --build
+```
+
+The live integration suite runs the production HTTP client against a local provider fixture server. It covers pagination, quotas, missing credentials, HTTP failures, malformed XML, stale timestamps, retained snapshots, match identities and feed leases. These tests prove adapter behavior against documented fixtures; they do not prove the coverage or timeliness of a paid provider account.
+
+See [VERIFICATION.md](VERIFICATION.md) for recorded results and [the pipeline guide](docs/data-pipeline.md) for ingestion details. The public feed has been fetched directly; authenticated CricketData remains unverified until a real account is configured.
 
 ## Model limits
 
-The supported scoring model is 2 points for a win, 0 for a loss, and 1 each for a washout. Ordered wins/NRR tie-breakers are configurable; future NRR ties are randomized in simulations. NRR stays at its snapshot value in the what-if table because a winner alone cannot determine runs or legal balls. Final ties across every configured criterion use team ID for stable display ordering, but qualification status remains unknown at a tied cutoff and simulations randomly break the remaining tie until further official rules are configured.
+Qualification currently supports 2 points per win, 1 per washout, 0 per loss, 2–16 teams per stage, and ordered wins/NRR tie-breakers. Future NRR ties are approximated; score-aware NRR, official stage advancement, arbitrary points systems, Test championship qualification and automatic validation of competition rules remain unimplemented. A sampled 0% does not establish elimination. Sampling intervals describe simulation noise, not real-world predictive accuracy.
 
-“Alive” means a points-feasible path allowing favorable unresolved tie-breaks and washouts. A simulation's 0% result alone does not imply elimination. The 95% intervals describe Monte Carlo sampling uncertainty, not real-world model uncertainty. A flow search that reaches its safety limit returns unknown.
+## Provider references
 
-Live-provider activation/contract verification, automatic fixture discovery, exact score-aware NRR, stage advancement, public API throttling and production deployment remain future milestones. Dependencies need online installation; a frontend lockfile should be committed after a successful install. See `VERIFICATION.md` for checks actually completed in this environment.
+- [ESPNcricinfo RSS feeds](https://www.cricinfo.com/ci/content/rss/feeds_rss_cricket.html?time=1)
+- [Public score feed](https://static.espncricinfo.com/rss/livescores.xml)
+- [CricketData generic API contract](https://cricketdata.org/how-to-use-cricket-data-api.aspx)

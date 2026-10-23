@@ -11,3 +11,5 @@ export type Probability = { team_id: string; qualification_pct: number; interval
 export type Prediction = { stage_id: string; revision: number; iterations: number; probabilities: Probability[]; tie_model: string; standings: Row[] }
 export type Job = { id: string; status: 'queued' | 'running' | 'completed' | 'failed'; result?: Prediction; error?: string }
 export type Scenario = { version: 1; stageId: string; revision: number; overrides: Record<string, Outcome>; model: 'equal' | 'rating'; washoutProbability: number }
+export type LiveMatch = { id: string; title: string; series_id: string | null; series_name: string | null; format: string | null; state: 'live' | 'upcoming' | 'completed' | 'unknown'; status: string; scores: string[]; starts_at?: string | null; venue?: string | null; url: string | null }
+export type LiveFeed = { matches: LiveMatch[]; provider: 'espn_rss' | 'cricketdata'; enabled: boolean; stale: boolean; observed_at?: string | null; timestamp_basis?: 'publisher' | 'retrieval' | null; last_success_at: string | null; error: string | null; poll_seconds: number; truncated?: boolean; coverage: string }

@@ -10,12 +10,24 @@ TEST_DIRECTORY = tempfile.TemporaryDirectory(dir=TEST_ROOT, ignore_cleanup_error
 os.environ['DATABASE_URL'] = 'sqlite:///' + (Path(TEST_DIRECTORY.name) / 'test.db').as_posix()
 os.environ['JOB_MODE'] = 'local'
 os.environ['DEMO_SEED'] = 'true'
+os.environ['LIVE_FEED_ENABLED'] = 'false'
 
 from fastapi.testclient import TestClient
 from app.main import app
 
 
 class APITests(unittest.TestCase):
+    def test_live_feed_contract_is_explicit_when_paused(self):
+        with TestClient(app) as client:
+            response = client.get('/api/live')
+            self.assertEqual(response.status_code, 200)
+            result = response.json()
+            self.assertFalse(result['enabled'])
+            self.assertTrue(result['stale'])
+            self.assertFalse(result['qualification_ready'])
+            self.assertIsInstance(result['matches'], list)
+            self.assertNotIn('apikey', result)
+
     def test_seed_stage_isolation_and_job_round_trip(self):
         with TestClient(app) as client:
             self.assertEqual(client.get('/api/health').status_code, 200)

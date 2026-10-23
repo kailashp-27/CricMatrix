@@ -18,8 +18,8 @@ def main():
     parser.add_argument('--http', action='store_true')
     parser.add_argument('--build', action='store_true')
     args = parser.parse_args()
-    env = {**os.environ, 'PYTHONPATH': str(ROOT / 'backend')}
-    patterns = ['test_engine.py', 'test_configuration.py', 'test_import.py', 'test_routes.py', 'test_sync.py', 'test_migrations.py']
+    env = {**os.environ, 'PYTHONPATH': str(ROOT / 'backend'), 'LIVE_FEED_ENABLED': 'false'}
+    patterns = ['test_engine.py', 'test_configuration.py', 'test_import.py', 'test_routes.py', 'test_sync.py', 'test_migrations.py', 'test_live.py']
     if args.http:
         patterns.append('test_api.py')
     failures = []

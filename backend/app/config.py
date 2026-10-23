@@ -16,6 +16,11 @@ class Settings(BaseSettings):
     cricketdata_api_key: SecretStr = SecretStr('')
     provider_daily_budget: int = Field(default=0, ge=0, le=100000)
     cricketdata_base_url: str = 'https://api.cricapi.com/v1'
+    live_feed_enabled: bool = True
+    live_feed_provider: Literal['espn_rss', 'cricketdata'] = 'espn_rss'
+    live_feed_url: str = 'https://static.espncricinfo.com/rss/livescores.xml'
+    live_poll_seconds: int = Field(default=120, ge=60, le=86400)
+    live_max_pages: int = Field(default=4, ge=1, le=20)
 
     @model_validator(mode='after')
     def validate_runtime(self):

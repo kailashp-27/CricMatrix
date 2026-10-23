@@ -38,3 +38,42 @@ class PredictionRequest(BaseModel):
     model: Literal['equal', 'rating'] = 'equal'
     washout_probability: float = Field(default=0.03, ge=0, le=0.5)
     seed: int = Field(default=42, ge=0, le=2**32 - 1)
+
+
+class FeedMatch(BaseModel):
+    id: str
+    title: str
+    series_id: str | None = None
+    series_name: str | None = None
+    format: str | None = None
+    state: Literal['live', 'upcoming', 'completed', 'unknown']
+    status: str
+    scores: list[str] = Field(default_factory=list)
+    starts_at: str | None = None
+    venue: str | None = None
+    url: str | None = None
+
+
+class FeedSeries(BaseModel):
+    id: str
+    name: str
+    start_date: str | None = None
+    end_date: str | None = None
+
+
+class LiveFeedResponse(BaseModel):
+    matches: list[FeedMatch]
+    series: list[FeedSeries]
+    provider: Literal['espn_rss', 'cricketdata']
+    enabled: bool
+    stale: bool
+    observed_at: str | None = None
+    timestamp_basis: Literal['publisher', 'retrieval'] | None = None
+    last_success_at: str | None = None
+    error: str | None = None
+    series_error: str | None = None
+    poll_seconds: int
+    truncated: bool = False
+    series_truncated: bool = False
+    coverage: str
+    qualification_ready: Literal[False] = False

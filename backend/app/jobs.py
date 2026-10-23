@@ -23,7 +23,8 @@ if settings.job_mode == 'celery':
                            task_track_started=True, result_expires=3600, worker_prefetch_multiplier=1,
                            task_soft_time_limit=90, task_time_limit=120,
                            beat_schedule={'refresh-baselines': {'task': 'crease.refresh_baselines', 'schedule': crontab(hour='0,12', minute=0)},
-                                          'dispatch-due-syncs': {'task': 'crease.dispatch_syncs', 'schedule': 60.0}})
+                                          'dispatch-due-syncs': {'task': 'crease.dispatch_syncs', 'schedule': 60.0},
+                                          'refresh-live-feed': {'task': 'crease.refresh_live_feed', 'schedule': 60.0}})
 pool = ThreadPoolExecutor(max_workers=2)
 local_jobs = {}
 lock = threading.Lock()
@@ -151,8 +152,19 @@ def dispatch_syncs():
 
 
 
+def refresh_live_feed_task():
+    if settings.live_feed_enabled:
+        from .live import refresh_feed, refresh_series
+        result = refresh_feed()
+        if settings.live_feed_provider == 'cricketdata':
+            refresh_series()
+        return result
+    return {'status': 'disabled'}
+
+
 if celery_app is not None:
     run_simulation = celery_app.task(name='crease.simulate')(run_simulation)
     refresh_baselines = celery_app.task(name='crease.refresh_baselines')(refresh_baselines)
     sync_stage_task = celery_app.task(name='crease.sync_stage', soft_time_limit=650, time_limit=680)(sync_stage_task)
     dispatch_syncs = celery_app.task(name='crease.dispatch_syncs')(dispatch_syncs)
+    refresh_live_feed_task = celery_app.task(name='crease.refresh_live_feed', soft_time_limit=550, time_limit=580)(refresh_live_feed_task)

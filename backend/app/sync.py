@@ -140,8 +140,9 @@ def fetch_cricketdata(config, fixtures, factory):
     if not api_key or settings.provider_daily_budget < 1:
         raise SyncFailure('provider_credentials_or_budget_missing')
     due = {m['id']: m for m in fixtures if m['outcome'] == 'pending' and datetime.fromisoformat(m['starts_at']).timestamp() <= time.time()}
-    if len(due) > config.max_calls_per_run:
-        raise SyncFailure('too_many_due_fixtures')
+    # Catch up a large real season in bounded batches rather than failing
+    # forever whenever more than one batch of played fixtures needs importing.
+    due = dict(sorted(due.items(), key=lambda pair: (pair[1]['starts_at'], pair[0]))[:config.max_calls_per_run])
     outcomes = {}
     with httpx.Client(timeout=10, follow_redirects=False) as client:
         for provider_id, local_id in config.fixture_map.items():
@@ -150,7 +151,7 @@ def fetch_cricketdata(config, fixtures, factory):
             for attempt in range(2):
                 reserve_request(factory, api_key, settings.provider_daily_budget)
                 try:
-                    response = client.get(settings.cricketdata_base_url.rstrip('/') + '/match_scorecard', params={'apikey': api_key, 'id': str(provider_id), 'offset': 0})
+                    response = client.get(settings.cricketdata_base_url.rstrip('/') + '/match_info', params={'apikey': api_key, 'id': str(provider_id), 'offset': 0})
                 except httpx.RequestError:
                     if attempt == 0:
                         time.sleep(0.25); continue

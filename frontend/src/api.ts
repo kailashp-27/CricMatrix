@@ -1,4 +1,4 @@
-import type { Job, Prediction, Snapshot, Tournament, Outcome } from './types'
+import type { Job, Prediction, Snapshot, Tournament, Outcome, LiveFeed } from './types'
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
   const response = await fetch(`/api${path}`, { cache: 'no-store', ...options })
   if (!response.ok) {
@@ -9,6 +9,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 }
 export const getTournaments = (signal: AbortSignal) => request<Tournament[]>('/tournaments', { signal })
 export const getStage = (id: string, signal: AbortSignal) => request<Snapshot>(`/stages/${id}`, { signal })
+export const getLiveFeed = (signal: AbortSignal) => request<LiveFeed>('/live', { signal })
 export async function predict(stage: string, overrides: Record<string, Outcome>, iterations: number, model: string, washoutProbability: number, signal: AbortSignal): Promise<Prediction> {
   let job = await request<Job>(`/stages/${stage}/predictions`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ overrides, iterations, model, washout_probability: washoutProbability }), signal })
   for (let i = 0; i < 120; i++) {

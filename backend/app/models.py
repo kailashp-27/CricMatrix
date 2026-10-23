@@ -122,3 +122,14 @@ class ProviderQuota(Base):
     __tablename__ = 'provider_quotas'
     key: Mapped[str] = mapped_column(String(120), primary_key=True)
     used: Mapped[int] = mapped_column(default=0)
+
+
+class LiveFeed(Base):
+    __tablename__ = 'live_feeds'
+    provider: Mapped[str] = mapped_column(String(40), primary_key=True)
+    payload: Mapped[dict] = mapped_column(JSON, default=dict)
+    last_success_at: Mapped[str | None]
+    error_code: Mapped[str | None]
+    next_attempt: Mapped[float] = mapped_column(default=0)
+    lease_until: Mapped[float] = mapped_column(default=0)
+    lease_token: Mapped[str | None]

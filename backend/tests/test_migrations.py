@@ -24,7 +24,7 @@ class MigrationTests(unittest.TestCase):
         command.upgrade(self.config, 'head')
         schema = inspect(self.connection)
         self.assertIn('stage_rules', schema.get_table_names())
-        for table in ('sync_sources', 'sync_runs', 'provider_quotas'):
+        for table in ('sync_sources', 'sync_runs', 'provider_quotas', 'live_feeds'):
             self.assertIn(table, schema.get_table_names())
         self.assertIn('team_count', {c['name'] for c in schema.get_columns('stage_rules')})
         self.assertIn('fk_fixture_home_entry', {c['name'] for c in schema.get_foreign_keys('fixtures')})
