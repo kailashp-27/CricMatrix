@@ -1,5 +1,13 @@
 # Verification record
 
+## 24 October 2026 — replace demo dashboard with fetched provider tables
+
+- Removed the synthetic qualification dashboard from the public React page. It no longer calls the seeded-stage catalog or prediction APIs. The database's development fixtures remain intact for backend tests; the new table API never falls back to them.
+- Verified successful authenticated `/series_points` requests for all 10 discovered competitions. Five returned team rows; five returned empty lists. Rows expose the actual played/won/lost/tied/no-result counters. None of the checked tables supplied points or NRR, so those cells are null in the API and shown as dashes in the UI.
+- Compared the active qualifier's fetched table with its fetched schedule: Mozambique appears in the fixtures but is omitted from the provider table. The API and UI flag this explicitly rather than adding a fabricated row.
+- Added `/api/standings` with a typed response contract, database cache, failure retention and the existing 24-hour provider interval. Browser Refresh only reads the cache. Qualified spots, rankings and probabilities are not invented from incomplete provider tables.
+- The full regression run passed; final affected suites passed 17 real-HTTP fixture tests and 4 ASGI tests. These include provider-counter preservation, absent metrics, empty-table behavior with seeded demo data present, error retention and missing-team warnings. Production build passed. Browser checks verified actual qualifier rows and the absence of the former RCB demo and synthetic controls.
+
 ## 24 October 2026 — daily refresh preference
 
 Changed the local provider refresh interval and the documented defaults to 86,400 seconds at the user's request. Existing cached data remains available; the next match fetch is due 24 hours after the last successful fetch. The UI displays the interval in hours. The earlier 20-minute activation settings below are historical.

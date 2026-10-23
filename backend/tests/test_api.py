@@ -17,6 +17,15 @@ from app.main import app
 
 
 class APITests(unittest.TestCase):
+    def test_provider_table_endpoint_never_returns_demo_tables(self):
+        with TestClient(app) as client:
+            response = client.get('/api/standings')
+            self.assertEqual(response.status_code, 200)
+            result = response.json()
+            self.assertEqual(result['competitions'], [])
+            self.assertFalse(result['qualification_available'])
+            self.assertNotIn('RCB', str(result))
+
     def test_live_feed_contract_is_explicit_when_paused(self):
         with TestClient(app) as client:
             response = client.get('/api/live')

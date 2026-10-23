@@ -244,7 +244,10 @@ def refresh_match_series(factory=SessionLocal):
                 raise SyncFailure('provider_series_identity_mismatch')
             return {'series': [{'id': identity, 'name': info['name'],
                 'start_date': info.get('startDate') or info.get('startdate'),
-                'end_date': info.get('endDate') or info.get('enddate')}], 'observed_at': utc_now()}
+                'end_date': info.get('endDate') or info.get('enddate')}],
+                'team_names': sorted({team for match in data.get('matchList', []) if isinstance(match, dict)
+                    for team in match.get('teams', []) if isinstance(team, str)}),
+                'observed_at': utc_now()}
         result = refresh_cached(series_cache_key(identity), 86400, factory, fetch_detail)
         results.append(result)
         if result.get('error') in {'daily_budget_exhausted', 'provider_credentials_or_budget_missing', 'provider_rate_limited'}:

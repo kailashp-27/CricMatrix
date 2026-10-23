@@ -77,3 +77,38 @@ class LiveFeedResponse(BaseModel):
     series_truncated: bool = False
     coverage: str
     qualification_ready: Literal[False] = False
+
+
+class ProviderStanding(BaseModel):
+    team_id: str
+    name: str
+    short_name: str | None = None
+    group: str | None = None
+    played: int = Field(ge=0)
+    won: int = Field(ge=0)
+    lost: int = Field(ge=0)
+    tied: int = Field(ge=0)
+    no_result: int = Field(ge=0)
+    points: float | None = None
+    nrr: float | None = None
+
+
+class ProviderCompetition(BaseModel):
+    id: str
+    name: str
+    rows: list[ProviderStanding]
+    fetched_at: str | None = None
+    stale: bool
+    status: Literal['available', 'unavailable', 'pending', 'failed']
+    error: str | None = None
+    points_available: bool
+    nrr_available: bool
+    missing_teams: list[str] = Field(default_factory=list)
+
+
+class ProviderTablesResponse(BaseModel):
+    provider: Literal['cricketdata']
+    poll_seconds: int
+    competitions: list[ProviderCompetition]
+    qualification_available: Literal[False] = False
+    note: str

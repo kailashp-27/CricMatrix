@@ -1,6 +1,6 @@
 # CricMatrix
 
-CricMatrix follows cricket across competitions and explores how remaining results can change a team's qualification chances. The app uses React and TypeScript with a FastAPI backend.
+CricMatrix follows cricket across competitions with fetched scores, results and team tables. It uses React and TypeScript with a FastAPI backend. The backend qualification engine is retained for verified configurations; the public page does not display synthetic predictions.
 
 ## Current data status
 
@@ -11,7 +11,8 @@ The score feed and the qualification explorer have different data requirements:
 | Cross-competition score feed | Public ESPNcricinfo RSS, no account required | Score headlines only; competition names, full schedules and match-state flags are absent. Publisher timestamps determine freshness. |
 | Structured match discovery | CricketData adapter for T20, ODI and Test matches; authenticated requests verified | Requires your private API key, provider coverage and a positive daily request budget. Match status can be present without score details. |
 | Tournament discovery | Paginated CricketData series discovery and cached competition names | Coverage depends on the provider and plan; page limits are reported explicitly. |
-| Qualification explorer | IPL, BBL, PSL and World Cup **synthetic examples**, plus operator-configured seasons | Examples are not current official seasons. Real qualification requires complete stage schedules, confirmed rules, results and trusted NRR. |
+| Fetched tournament tables | CricketData `/series_points` team rows for discovered competitions | Missing tables stay unavailable. Points and NRR appear only when supplied. Missing scheduled teams are flagged when known. |
+| Qualification engine | Backend APIs and synthetic development fixtures remain available | Demo seasons and simulated qualification percentages are no longer displayed in the public dashboard. Real qualification needs verified inputs. |
 
 **Credentials are private and are not included in this repository.** On 24 October 2026, authenticated CricketData requests returned 25 matches across 10 competitions. Series IDs were resolved directly through `/series_info`, because the generic catalog's first pages contained future tours rather than those competitions. The account reported a 100-request daily limit. The provider marked one match in progress but supplied no score in either the list or detail response; authenticated access does not establish complete real-time coverage.
 
@@ -106,6 +107,7 @@ There is no public configuration/write endpoint. Picks affect the scenario only,
 | Method | Path | Purpose |
 | --- | --- | --- |
 | GET | `/api/live` | Cached cross-competition scores, provider, freshness, errors and partial-coverage flags |
+| GET | `/api/standings` | Cached provider tournament tables, missing fields and coverage warnings; no demo fallback |
 | GET | `/api/tournaments` | Configured qualification tournaments, seasons and stages |
 | GET | `/api/stages/{id}` | Stage snapshot, standings and source freshness |
 | GET | `/api/stages/{id}/rules` | Stage rules and revision |
@@ -120,7 +122,7 @@ Example prediction body:
 {"overrides": {}, "iterations": 1000, "model": "equal", "washout_probability": 0.03, "seed": 42}
 ```
 
-The UI supports reality/what-if modes, per-stage saved picks, scenario links, CSV exports, fixture filters and team focus. The backend uses exact points-feasibility checks and Monte Carlo estimates with sampling intervals. Completed or foreign-stage fixtures cannot be overridden.
+The public dashboard now displays fetched match data and provider tournament tables. The former demo-season selector, reality/what-if controls, synthetic progress statistics and simulated qualification percentages have been removed from the public page. The backend still retains configuration and simulation APIs for future verified stages; completed or foreign-stage fixtures cannot be overridden.
 
 ## Docker with PostgreSQL, Redis and Celery
 

@@ -19,6 +19,7 @@ from app.database import Base
 from app.live import parse_matches, parse_rss, read_feed, refresh_feed, refresh_series, refresh_match_series
 from app.models import LiveFeed, ProviderQuota
 from app.sync import SourceConfig, SyncFailure, fetch_cricketdata
+from app.provider_tables import parse_points, refresh_tables, read_tables, table_key
 
 
 def rss(published=None, title='Team A 123/4 * v Team B'):
@@ -153,6 +154,64 @@ class LiveTests(unittest.TestCase):
         self.assertEqual(parse_matches([row])[0]['state'], 'unknown')
         row['id'] = 'not-a-uuid'
         with self.assertRaises(SyncFailure): parse_matches([row])
+
+    def table_row(self):
+        return {'teamname': 'Nigeria', 'shortname': 'NGA', 'matches': 3, 'wins': 3, 'loss': 0, 'ties': 0, 'nr': 0}
+
+    def test_fetched_table_preserves_provider_counters_without_inventing_points_or_nrr(self):
+        settings.live_feed_provider = 'cricketdata'
+        self.responses[('/currentMatches', '0')] = self.json_response([self.row()], 1)
+        self.responses[('/series_points', '0')] = self.json_response([self.table_row()], 1)
+        refresh_feed(self.factory); refresh_tables(self.factory); refresh_tables(self.factory)
+        with self.factory() as session:
+            table = read_tables(session)['competitions'][0]
+            self.assertEqual(table['rows'][0]['won'], 3)
+            self.assertEqual(table['rows'][0]['played'], 3)
+            self.assertIsNone(table['rows'][0]['points']); self.assertIsNone(table['rows'][0]['nrr'])
+            self.assertFalse(table['points_available']); self.assertFalse(table['nrr_available'])
+            self.assertFalse(read_tables(session)['qualification_available'])
+            series_id = table['id']
+        with self.factory.begin() as session:
+            from app.live import series_cache_key
+            session.add(LiveFeed(provider=series_cache_key(series_id), payload={'team_names': ['Nigeria', 'Mozambique']}))
+        with self.factory() as session:
+            self.assertEqual(read_tables(session)['competitions'][0]['missing_teams'], ['Mozambique'])
+        self.assertEqual([c[0] for c in self.calls], ['/currentMatches', '/series_points'])
+
+    def test_empty_provider_table_never_falls_back_to_seeded_standings(self):
+        from app.seed import seed_demo
+        settings.live_feed_provider = 'cricketdata'
+        with self.factory() as session: seed_demo(session)
+        self.responses[('/currentMatches', '0')] = self.json_response([self.row()], 1)
+        self.responses[('/series_points', '0')] = self.json_response([], 0)
+        refresh_feed(self.factory); refresh_tables(self.factory)
+        with self.factory() as session:
+            result = read_tables(session)
+            self.assertEqual(len(result['competitions']), 1)
+            self.assertEqual(result['competitions'][0]['rows'], [])
+            self.assertEqual(result['competitions'][0]['status'], 'unavailable')
+            self.assertNotIn('RCB', json.dumps(result))
+
+    def test_table_failure_preserves_last_provider_table_and_marks_stale(self):
+        settings.live_feed_provider = 'cricketdata'
+        self.responses[('/currentMatches', '0')] = self.json_response([self.row()], 1)
+        self.responses[('/series_points', '0')] = self.json_response([self.table_row()], 1)
+        refresh_feed(self.factory); refresh_tables(self.factory); self.due()
+        self.responses[('/series_points', '0')] = (500, b'test-private-key')
+        refresh_tables(self.factory)
+        with self.factory() as session:
+            result = read_tables(session)
+            self.assertEqual(result['competitions'][0]['rows'][0]['name'], 'Nigeria')
+            self.assertTrue(result['competitions'][0]['stale'])
+            self.assertEqual(result['competitions'][0]['status'], 'failed')
+            self.assertNotIn('test-private-key', json.dumps(result))
+
+    def test_table_validation_keeps_optional_metrics_and_rejects_bad_totals(self):
+        row = self.table_row(); row.update(points=6, nrr=1.234)
+        parsed = parse_points([row])[0]
+        self.assertEqual(parsed['points'], 6); self.assertEqual(parsed['nrr'], 1.234)
+        for invalid in ([row, row], [{**row, 'wins': 4}], [{**row, 'nrr': float('nan')}], [{**row, 'matches': -1}]):
+            with self.assertRaises(SyncFailure): parse_points(invalid)
 
     def test_series_discovery_resolves_competition_names_and_caches_daily(self):
         settings.live_feed_provider = 'cricketdata'

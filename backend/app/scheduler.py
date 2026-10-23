@@ -18,6 +18,8 @@ def local_tick():
         refresh_feed()
         if settings.live_feed_provider == 'cricketdata':
             refresh_match_series()
+            from .provider_tables import refresh_tables
+            refresh_tables()
             refresh_series()
     from .jobs import sync_stage_task
     with SessionLocal() as session:

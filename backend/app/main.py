@@ -15,11 +15,12 @@ from .engine import load_snapshot, standings, validate_overrides
 from .jobs import read_job, redis_client, submit
 from .models import LiveFeed, Season, Stage, StageRule, SyncSource, Tournament
 from .rules import TEMPLATES, get_rules
-from .schemas import LiveFeedResponse, PredictionRequest
+from .schemas import LiveFeedResponse, PredictionRequest, ProviderTablesResponse
 from .seed import seed_demo
 from .sync import sync_status
 from .live import read_feed
 from .scheduler import run_local_scheduler
+from .provider_tables import read_tables
 
 
 @asynccontextmanager
@@ -92,6 +93,12 @@ def tournaments(session: Session = Depends(session_dependency)):
 def live_matches(session: Session = Depends(session_dependency)):
     """Cached multi-competition matches. Reading never spends provider quota."""
     return read_feed(session)
+
+
+@app.get('/api/standings', response_model=ProviderTablesResponse)
+def provider_standings(session: Session = Depends(session_dependency)):
+    """Fetched provider tables only. No demo fallback or visitor-triggered calls."""
+    return read_tables(session)
 
 
 def snapshot_or_404(session, stage_id):

@@ -1,5 +1,11 @@
 # Data pipeline and activation
 
+## Public provider tables
+
+The public dashboard uses `/api/standings`, backed by CricketData `/series_points`, instead of displaying seeded qualification stages. Each discovered competition's table is cached for 24 hours under the current configuration. Empty responses stay empty; failures retain the previous provider table with a stale marker. The response is explicitly mapped to team name, played, wins, losses, ties and no-results. Points and NRR are retained only if supplied; neither is calculated from assumed rules. Row order is the provider's order, not a verified qualification rank. Known teams in cached series fixtures that are missing from the table are reported in `missing_teams`.
+
+The endpoint was verified with authenticated responses. Of the 10 checked competitions, five supplied rows and five returned no table. Points/NRR were absent in the checked data. Browser refresh reads the stored snapshot and cannot trigger another upstream request. The synthetic-stage configuration below remains a backend development/operator workflow; it is no longer the public page's data source.
+
 The pipeline updates provisioned stages. It does not let visitors spend provider quota. External credentials stay in server settings; only sanitized status fields are exposed through `/api/stages/{id}/sync` and the stage snapshot.
 
 ## Normalized file feed

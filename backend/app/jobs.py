@@ -158,6 +158,8 @@ def refresh_live_feed_task():
         result = refresh_feed()
         if settings.live_feed_provider == 'cricketdata':
             refresh_match_series()
+            from .provider_tables import refresh_tables
+            refresh_tables()
             refresh_series()
         return result
     return {'status': 'disabled'}
