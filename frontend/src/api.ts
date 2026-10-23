@@ -12,6 +12,14 @@ export const getStage = (id: string, signal: AbortSignal) => request<Snapshot>(`
 export const getLiveFeed = (signal: AbortSignal) => request<LiveFeed>('/live', { signal })
 export async function predict(stage: string, overrides: Record<string, Outcome>, iterations: number, model: string, washoutProbability: number, signal: AbortSignal): Promise<Prediction> {
   let job = await request<Job>(`/stages/${stage}/predictions`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ overrides, iterations, model, washout_probability: washoutProbability }), signal })
+  return pollPrediction(job, signal)
+}
+export async function forecastCompetition(id: string, body: Record<string, unknown>, signal: AbortSignal): Promise<Prediction> {
+  const job = await request<Job>(`/competitions/${id}/forecast`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), signal })
+  return pollPrediction(job, signal)
+}
+async function pollPrediction(initial: Job, signal: AbortSignal): Promise<Prediction> {
+  let job = initial
   for (let i = 0; i < 120; i++) {
     if (job.status === 'completed' && job.result) return job.result
     if (job.status === 'failed') throw new Error(job.error || 'Simulation failed')

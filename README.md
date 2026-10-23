@@ -1,6 +1,6 @@
 # CricMatrix
 
-CricMatrix follows cricket across competitions with fetched scores, results and team tables. It uses React and TypeScript with a FastAPI backend. The backend qualification engine is retained for verified configurations; the public page does not display synthetic predictions.
+CricMatrix follows cricket across competitions with fetched scores, results and team tables. It uses React and TypeScript with a FastAPI backend. The Tables & predictions tab adds fetched upcoming fixtures and an explicit qualification scenario model; Cricket across competitions has its own top navigation tab.
 
 ## Current data status
 
@@ -12,7 +12,7 @@ The score feed and the qualification explorer have different data requirements:
 | Structured match discovery | CricketData adapter for T20, ODI and Test matches; authenticated requests verified | Requires your private API key, provider coverage and a positive daily request budget. Match status can be present without score details. |
 | Tournament discovery | Paginated CricketData series discovery and cached competition names | Coverage depends on the provider and plan; page limits are reported explicitly. |
 | Fetched tournament tables | CricketData `/series_points` team rows for discovered competitions | Missing tables stay unavailable. Points and NRR appear only when supplied. Missing scheduled teams are flagged when known. |
-| Qualification engine | Backend APIs and synthetic development fixtures remain available | Demo seasons and simulated qualification percentages are no longer displayed in the public dashboard. Real qualification needs verified inputs. |
+| Qualification scenarios | Baseline and picked-result qualification estimates for complete, consistent league/group schedules | User chooses Top K and accepts a 2/1/0 points model with randomized unknown NRR ties. Estimates are conditional model outputs, not verified official qualification odds. |
 
 **Credentials are private and are not included in this repository.** On 24 October 2026, authenticated CricketData requests returned 25 matches across 10 competitions. Series IDs were resolved directly through `/series_info`, because the generic catalog's first pages contained future tours rather than those competitions. The account reported a 100-request daily limit. The provider marked one match in progress but supplied no score in either the list or detail response; authenticated access does not establish complete real-time coverage.
 
@@ -108,6 +108,9 @@ There is no public configuration/write endpoint. Picks affect the scenario only,
 | --- | --- | --- |
 | GET | `/api/live` | Cached cross-competition scores, provider, freshness, errors and partial-coverage flags |
 | GET | `/api/standings` | Cached provider tournament tables, missing fields and coverage warnings; no demo fallback |
+| GET | `/api/competitions/{id}/fixtures` | Full fetched series fixture schedule and completeness status |
+| GET | `/api/competitions/{id}/analysis` | Upcoming fixtures, scenario eligibility and blockers |
+| POST | `/api/competitions/{id}/forecast` | Async qualification scenario under explicit user-selected assumptions |
 | GET | `/api/tournaments` | Configured qualification tournaments, seasons and stages |
 | GET | `/api/stages/{id}` | Stage snapshot, standings and source freshness |
 | GET | `/api/stages/{id}/rules` | Stage rules and revision |
@@ -122,7 +125,11 @@ Example prediction body:
 {"overrides": {}, "iterations": 1000, "model": "equal", "washout_probability": 0.03, "seed": 42}
 ```
 
-The public dashboard now displays fetched match data and provider tournament tables. The former demo-season selector, reality/what-if controls, synthetic progress statistics and simulated qualification percentages have been removed from the public page. The backend still retains configuration and simulation APIs for future verified stages; completed or foreign-stage fixtures cannot be overridden.
+The public dashboard has two top navigation tabs. Tables & predictions shows fetched standings, the next future scheduled match, remaining-result picks and qualification chances for every team. Cricket across competitions contains the cross-competition score feed. The old demo-season selector and synthetic progress statistics are not used.
+
+For qualification scenarios, select an assumed number of qualifying spots, match model and no-result probability; accept the displayed model assumptions and calculate. Pick remaining match results to see baseline probability, scenario probability and the increase/decrease in **percentage points** for every team. Resetting picks returns to the baseline. Both runs use the same settings and seed; small changes can include sampling noise. Picks never change stored provider results or spend provider requests.
+
+Simulation rows are reconstructed from the complete fetched fixture schedule, including a team omitted from the provider table when its actual fixture results are available. Known table counts must agree with those results. Incomplete schedules, ambiguous finished results, conflicting counts, mixed-format tours, Tests and non-uniform/knockout stages block qualification simulation. Top K and 2/1/0 points are explicitly selected scenario assumptions; official advancement rules are not inferred. Unknown NRR ties are randomized. The optional record model uses smoothed fetched win/loss records and has not been validated as a real-world forecasting model.
 
 ## Docker with PostgreSQL, Redis and Celery
 

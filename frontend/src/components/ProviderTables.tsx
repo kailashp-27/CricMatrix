@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { RefreshCw } from 'lucide-react'
+import { CompetitionPredictions } from './CompetitionPredictions'
 
 type Standing = { team_id: string; name: string; short_name: string | null; group: string | null; played: number; won: number; lost: number; tied: number; no_result: number; points: number | null; nrr: number | null }
 type Competition = { id: string; name: string; rows: Standing[]; fetched_at: string | null; stale: boolean; status: string; error: string | null; points_available: boolean; nrr_available: boolean; missing_teams: string[] }
@@ -42,8 +43,8 @@ export function ProviderTables() {
       <div className="table-scroll"><table><caption className="sr-only">{current.name}. Team statistics fetched from CricketData. Row order is supplied by the provider, not a verified qualification ranking.</caption><thead><tr><th scope="col" className="team-cell">TEAM</th>{groups && <th scope="col">GROUP</th>}<th scope="col">P</th><th scope="col">W</th><th scope="col">L</th><th scope="col">T</th><th scope="col">NR</th><th scope="col">PTS</th><th scope="col">NRR</th></tr></thead><tbody>{current.rows.map((row) => <tr key={row.team_id}><th scope="row" className="team-cell"><span className="provider-team-name">{row.name}</span>{row.short_name && <span className="provider-team-short">{row.short_name}</span>}</th>{groups && <td>{row.group || '—'}</td>}<td>{row.played}</td><td>{row.won}</td><td>{row.lost}</td><td>{row.tied}</td><td>{row.no_result}</td><td className="points">{row.points ?? '—'}</td><td>{row.nrr === null ? '—' : row.nrr.toFixed(3)}</td></tr>)}</tbody></table></div>
       <p className="live-footnote">P: played · W: won · L: lost · T: tied · NR: no result. Row order comes from the provider.</p>
       {(!current.points_available || !current.nrr_available) && <p className="notice">{!current.points_available && 'Points are not supplied for this table. '}{!current.nrr_available && 'NRR is not supplied for this table. '}Missing values are shown as —.</p>}
-      <p className="live-footnote">Qualification odds and What-if mode are unavailable until complete stage schedules, official qualification rules and tie-breakers are verified.</p>
     </> : <p className="live-description">{loading ? 'Loading fetched tournament tables…' : current?.error ? 'The provider request failed. No replacement table has been generated.' : 'CricketData has not supplied a table for this competition. No demonstration results are shown.'}</p>}
     <p className="live-footnote">{data?.note || 'Tables use fetched provider statistics only.'} Refresh reads the stored snapshot and does not spend another provider request.</p>
+    {current && <CompetitionPredictions key={current.id} seriesId={current.id} refreshToken={refresh} />}
   </section>
 }

@@ -1,5 +1,15 @@
 # Data pipeline and activation
 
+## Fetched schedules and qualification scenarios
+
+The per-series cache also stores normalized full `/series_info` schedules. A schedule is marked complete only when the provider's expected match count agrees with the unique fetched fixtures. Finished results require a matching structured winner or exact team-name `won by` text plus the finished flag. Toss information and ambiguous finished matches are never converted into a guessed winner.
+
+`GET /api/competitions/{id}/analysis` supplies fetched fixtures and scenario eligibility. `POST /api/competitions/{id}/forecast` accepts Top K, match model, no-result probability and remaining-result picks, with explicit acceptance of the 2/1/0 points model. It uses the existing bounded async prediction jobs. Both endpoints read the cache; simulations never fetch a provider or alter stored match results.
+
+Qualification is restricted to complete, consistent, single-format limited-overs league/group schedules. Every pair of teams must occur equally often; knockout/mixed stages need verified separation first. Completed result ambiguity and conflicts with known table counts block predictions. Simulation rows are reconstructed from actual full-schedule results, including a table-omitted team when its fixture results are known. Missing official NRR is treated as unknown and randomized in points ties. Top K is a user-selected assumption, not a claimed official advancement rule.
+
+The frontend compares a baseline job with a picked-result job under identical settings. Changes are displayed for every team in percentage points; small differences can include Monte Carlo noise. Resetting picks reuses the same baseline. Results from different stored revisions are not compared. Source refresh remains once every 24 hours.
+
 ## Public provider tables
 
 The public dashboard uses `/api/standings`, backed by CricketData `/series_points`, instead of displaying seeded qualification stages. Each discovered competition's table is cached for 24 hours under the current configuration. Empty responses stay empty; failures retain the previous provider table with a stale marker. The response is explicitly mapped to team name, played, wins, losses, ties and no-results. Points and NRR are retained only if supplied; neither is calculated from assumed rules. Row order is the provider's order, not a verified qualification rank. Known teams in cached series fixtures that are missing from the table are reported in `missing_teams`.

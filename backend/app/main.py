@@ -1,5 +1,6 @@
 import asyncio
 import re
+from uuid import UUID
 from contextlib import asynccontextmanager
 
 from fastapi import Depends, FastAPI, HTTPException, Response
@@ -15,12 +16,14 @@ from .engine import load_snapshot, standings, validate_overrides
 from .jobs import read_job, redis_client, submit
 from .models import LiveFeed, Season, Stage, StageRule, SyncSource, Tournament
 from .rules import TEMPLATES, get_rules
-from .schemas import LiveFeedResponse, PredictionRequest, ProviderTablesResponse
+from .schemas import CompetitionForecastRequest, LiveFeedResponse, PredictionRequest, ProviderTablesResponse
 from .seed import seed_demo
 from .sync import sync_status
 from .live import read_feed
 from .scheduler import run_local_scheduler
 from .provider_tables import read_tables
+from .competition_fixtures import read_fixtures
+from .competition_predictions import competition_analysis, fixture_snapshot
 
 
 @asynccontextmanager
@@ -99,6 +102,45 @@ def live_matches(session: Session = Depends(session_dependency)):
 def provider_standings(session: Session = Depends(session_dependency)):
     """Fetched provider tables only. No demo fallback or visitor-triggered calls."""
     return read_tables(session)
+
+
+@app.get('/api/competitions/{series_id}/fixtures')
+def competition_fixtures(series_id: UUID, session: Session = Depends(session_dependency)):
+    try:
+        return read_fixtures(session, str(series_id))
+    except KeyError as exc:
+        raise HTTPException(404, 'Competition is not in the fetched match catalog') from exc
+
+
+@app.get('/api/competitions/{series_id}/analysis')
+def provider_analysis(series_id: UUID, session: Session = Depends(session_dependency)):
+    try:
+        return competition_analysis(session, str(series_id))
+    except KeyError as exc:
+        raise HTTPException(404, 'Competition is not in the fetched match catalog') from exc
+
+
+@app.post('/api/competitions/{series_id}/forecast', status_code=202)
+def provider_forecast(series_id: UUID, request: CompetitionForecastRequest, response: Response, session: Session = Depends(session_dependency)):
+    if not request.accept_points_assumptions:
+        raise HTTPException(422, 'Choose the points-model assumptions before running qualification scenarios.')
+    try:
+        schedule = read_fixtures(session, str(series_id))
+        rows = next(c['rows'] for c in read_tables(session)['competitions'] if c['id'] == str(series_id))
+        snapshot = fixture_snapshot(schedule, rows, request.qualifying_spots)
+        validate_overrides(snapshot, request.overrides)
+    except KeyError as exc:
+        raise HTTPException(404, 'Competition is not in the fetched match catalog') from exc
+    except ValueError as exc:
+        raise HTTPException(409, str(exc)) from exc
+    model_request = PredictionRequest(overrides=request.overrides, iterations=request.iterations,
+        model='equal' if request.model == 'equal' else 'rating', washout_probability=request.washout_probability, seed=request.seed)
+    try:
+        job = submit(snapshot, model_request.model_dump())
+    except Exception as exc:
+        raise HTTPException(503, 'Prediction service unavailable. Please retry shortly.') from exc
+    response.headers['Location'] = f'/api/predictions/{job["id"]}'
+    return job
 
 
 def snapshot_or_404(session, stage_id):

@@ -1,5 +1,14 @@
 # Verification record
 
+## 24 October 2026 — upcoming fixtures and qualification scenarios
+
+- Added top navigation for Tables & predictions and Cricket across competitions. The score feed now has its own tab; table selection drives the fetched schedule and prediction workspace.
+- Full `/series_info` fixtures are normalized and cached alongside series names. Result parsing requires a finished flag and either a matching structured winner or an exact team-name `won by` result. Toss statuses never become wins. Ambiguous completed results block simulation.
+- Added upcoming fixture/analysis routes and async competition qualification jobs. The model requires explicit user acceptance of Top K, 2 points/win, 1/no-result, 0/loss and randomized unknown-NRR ties. Complete fetched results reconstruct simulation rows; fetched table counts must agree. Mixed-format, Test, incomplete, non-uniform/knockout and unresolved schedules are blocked.
+- Added baseline vs picked-result chances and percentage-point increases/decreases for every team. Picks are debounced, completed/foreign fixtures are rejected, old calculations are aborted when inputs change, and provider results remain unchanged. Reset returns to the same baseline. Daily provider polling remains unchanged.
+- Full verification passed **72 backend tests and 9 frontend domain tests**, plus the production build. New checks cover fixture normalization, missing-team reconstruction, conflicting results, completed picks, invalid schedules, conditional probability increases/decreases and the actual ASGI job round trip.
+- An actual cached qualifier schedule contained 15 fixtures and passed the structural/consistency checks. Under a Top-2 equal-chance model, picking Nigeria to beat Lesotho increased Nigeria from 90.33% to 100% and reduced Lesotho from 10.07% to 0.29%. These are conditional model outputs, not official qualification probabilities.
+
 ## 24 October 2026 — replace demo dashboard with fetched provider tables
 
 - Removed the synthetic qualification dashboard from the public React page. It no longer calls the seeded-stage catalog or prediction APIs. The database's development fixtures remain intact for backend tests; the new table API never falls back to them.

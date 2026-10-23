@@ -17,6 +17,53 @@ from app.main import app
 
 
 class APITests(unittest.TestCase):
+    def test_fetched_schedule_qualification_jobs_and_validation(self):
+        import copy
+        from unittest.mock import patch
+        from uuid import uuid4
+        from app.config import settings
+        from app.database import SessionLocal
+        from app.models import LiveFeed
+        from app.live import series_cache_key
+        from app.provider_tables import table_key
+        from app.competition_predictions import team_id
+        from test_competition_predictions import schedule_data, provider_rows
+        schedule = schedule_data(); identity = schedule['series_id']
+        keys = ['cricketdata', series_cache_key(identity), table_key(identity)]
+        with patch.object(settings, 'live_feed_provider', 'cricketdata'), TestClient(app) as client:
+            try:
+                with SessionLocal.begin() as session:
+                    session.add(LiveFeed(provider='cricketdata', payload={'matches': [{'id': str(uuid4()), 'series_id': identity, 'state': 'upcoming'}]}))
+                    session.add(LiveFeed(provider=series_cache_key(identity), payload={**schedule, 'series': [{'id': identity, 'name': schedule['name']}]}))
+                    rows = [{**r, 'team_id': team_id(r['name']), 'group': None, 'points': None, 'nrr': None} for r in provider_rows()]
+                    session.add(LiveFeed(provider=table_key(identity), payload={'rows': rows}))
+                analysis = client.get(f'/api/competitions/{identity}/analysis')
+                self.assertEqual(analysis.status_code, 200)
+                self.assertTrue(analysis.json()['qualification_eligible'])
+                body = {'qualifying_spots': 1, 'iterations': 100, 'washout_probability': 0}
+                route = f'/api/competitions/{identity}/forecast'
+                self.assertEqual(client.post(route, json=body).status_code, 422)
+                body['accept_points_assumptions'] = True
+                completed = next(m for m in schedule['fixtures'] if m['state'] == 'completed')
+                self.assertEqual(client.post(route, json={**body, 'overrides': {completed['id']: 'away'}}).status_code, 409)
+                response = client.post(route, json=body)
+                self.assertEqual(response.status_code, 202)
+                for _ in range(100):
+                    job = client.get(response.headers['Location']).json()
+                    if job['status'] in {'completed', 'failed'}: break
+                    time.sleep(.02)
+                self.assertEqual(job['status'], 'completed')
+                self.assertEqual(len(job['result']['probabilities']), 3)
+                with SessionLocal() as session:
+                    stored = session.get(LiveFeed, series_cache_key(identity)).payload
+                    self.assertEqual(stored['fixtures'], schedule['fixtures'])
+                self.assertEqual(client.get(f'/api/competitions/{uuid4()}/analysis').status_code, 404)
+            finally:
+                with SessionLocal.begin() as session:
+                    for key in keys:
+                        entity = session.get(LiveFeed, key)
+                        if entity: session.delete(entity)
+
     def test_provider_table_endpoint_never_returns_demo_tables(self):
         with TestClient(app) as client:
             response = client.get('/api/standings')

@@ -242,11 +242,14 @@ def refresh_match_series(factory=SessionLocal):
             info = data.get('info') if isinstance(data, dict) else None
             if not isinstance(info, dict) or info.get('id') != identity or not isinstance(info.get('name'), str):
                 raise SyncFailure('provider_series_identity_mismatch')
+            from .competition_fixtures import normalize_schedule
+            schedule = normalize_schedule(data)
             return {'series': [{'id': identity, 'name': info['name'],
                 'start_date': info.get('startDate') or info.get('startdate'),
                 'end_date': info.get('endDate') or info.get('enddate')}],
                 'team_names': sorted({team for match in data.get('matchList', []) if isinstance(match, dict)
                     for team in match.get('teams', []) if isinstance(team, str)}),
+                **schedule,
                 'observed_at': utc_now()}
         result = refresh_cached(series_cache_key(identity), 86400, factory, fetch_detail)
         results.append(result)

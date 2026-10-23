@@ -40,6 +40,17 @@ class PredictionRequest(BaseModel):
     seed: int = Field(default=42, ge=0, le=2**32 - 1)
 
 
+class CompetitionForecastRequest(BaseModel):
+    model_config = ConfigDict(extra='forbid')
+    qualifying_spots: int = Field(ge=1, le=16)
+    accept_points_assumptions: bool = False
+    model: Literal['equal', 'record'] = 'equal'
+    overrides: dict[str, Outcome] = Field(default_factory=dict, max_length=200)
+    iterations: int = Field(default=1000, ge=100, le=10000)
+    washout_probability: float = Field(default=0.03, ge=0, le=0.5)
+    seed: int = Field(default=42, ge=0, le=2**32 - 1)
+
+
 class FeedMatch(BaseModel):
     id: str
     title: str
