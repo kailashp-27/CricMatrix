@@ -1,0 +1,243 @@
+{
+  "schema_version": 1,
+  "tournament": {
+    "id": "wc",
+    "name": "T20 World Cup",
+    "country": "International"
+  },
+  "id": "wc-phase2-example",
+  "name": "Phase 2 example season",
+  "source": "demo",
+  "teams": [
+    {
+      "id": "wc-IND",
+      "name": "India",
+      "short_name": "IND",
+      "color": "#5297ff"
+    },
+    {
+      "id": "wc-AUS",
+      "name": "Australia",
+      "short_name": "AUS",
+      "color": "#f7ce45"
+    },
+    {
+      "id": "wc-ENG",
+      "name": "England",
+      "short_name": "ENG",
+      "color": "#fa6574"
+    },
+    {
+      "id": "wc-SA",
+      "name": "South Africa",
+      "short_name": "SA",
+      "color": "#86cb80"
+    },
+    {
+      "id": "wc-NZ",
+      "name": "New Zealand",
+      "short_name": "NZ",
+      "color": "#b4bac9"
+    },
+    {
+      "id": "wc-PAK",
+      "name": "Pakistan",
+      "short_name": "PAK",
+      "color": "#63d2c8"
+    },
+    {
+      "id": "wc-WI",
+      "name": "West Indies",
+      "short_name": "WI",
+      "color": "#b799ff"
+    },
+    {
+      "id": "wc-SL",
+      "name": "Sri Lanka",
+      "short_name": "SL",
+      "color": "#ff9a50"
+    }
+  ],
+  "stages": [
+    {
+      "id": "wc-phase2-example-0",
+      "name": "Group A",
+      "rules": {
+        "qualifying_spots": 2,
+        "win_points": 2,
+        "loss_points": 0,
+        "washout_points": 1,
+        "tie_breakers": [
+          "nrr"
+        ],
+        "team_count": 4,
+        "matches_per_team": 3,
+        "stage_format": "group",
+        "regulation_overs": 20,
+        "schedule_complete": true
+      },
+      "entries": [
+        {
+          "team_id": "wc-IND",
+          "nrr": 0.0,
+          "rating": 1500.0
+        },
+        {
+          "team_id": "wc-AUS",
+          "nrr": 0.0,
+          "rating": 1500.0
+        },
+        {
+          "team_id": "wc-ENG",
+          "nrr": 0.0,
+          "rating": 1500.0
+        },
+        {
+          "team_id": "wc-SA",
+          "nrr": 0.0,
+          "rating": 1500.0
+        }
+      ],
+      "fixtures": [
+        {
+          "id": "wc-phase2-example-0-m1",
+          "home_id": "wc-IND",
+          "away_id": "wc-SA",
+          "starts_at": "2027-04-01T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "wc-phase2-example-0-m2",
+          "home_id": "wc-AUS",
+          "away_id": "wc-ENG",
+          "starts_at": "2027-04-02T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "wc-phase2-example-0-m3",
+          "home_id": "wc-IND",
+          "away_id": "wc-ENG",
+          "starts_at": "2027-04-03T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "wc-phase2-example-0-m4",
+          "home_id": "wc-SA",
+          "away_id": "wc-AUS",
+          "starts_at": "2027-04-04T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "wc-phase2-example-0-m5",
+          "home_id": "wc-IND",
+          "away_id": "wc-AUS",
+          "starts_at": "2027-04-05T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "wc-phase2-example-0-m6",
+          "home_id": "wc-ENG",
+          "away_id": "wc-SA",
+          "starts_at": "2027-04-06T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        }
+      ]
+    },
+    {
+      "id": "wc-phase2-example-1",
+      "name": "Group B",
+      "rules": {
+        "qualifying_spots": 2,
+        "win_points": 2,
+        "loss_points": 0,
+        "washout_points": 1,
+        "tie_breakers": [
+          "nrr"
+        ],
+        "team_count": 4,
+        "matches_per_team": 3,
+        "stage_format": "group",
+        "regulation_overs": 20,
+        "schedule_complete": true
+      },
+      "entries": [
+        {
+          "team_id": "wc-NZ",
+          "nrr": 0.0,
+          "rating": 1500.0
+        },
+        {
+          "team_id": "wc-PAK",
+          "nrr": 0.0,
+          "rating": 1500.0
+        },
+        {
+          "team_id": "wc-WI",
+          "nrr": 0.0,
+          "rating": 1500.0
+        },
+        {
+          "team_id": "wc-SL",
+          "nrr": 0.0,
+          "rating": 1500.0
+        }
+      ],
+      "fixtures": [
+        {
+          "id": "wc-phase2-example-1-m1",
+          "home_id": "wc-NZ",
+          "away_id": "wc-SL",
+          "starts_at": "2027-04-01T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "wc-phase2-example-1-m2",
+          "home_id": "wc-PAK",
+          "away_id": "wc-WI",
+          "starts_at": "2027-04-02T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "wc-phase2-example-1-m3",
+          "home_id": "wc-NZ",
+          "away_id": "wc-WI",
+          "starts_at": "2027-04-03T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "wc-phase2-example-1-m4",
+          "home_id": "wc-SL",
+          "away_id": "wc-PAK",
+          "starts_at": "2027-04-04T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "wc-phase2-example-1-m5",
+          "home_id": "wc-NZ",
+          "away_id": "wc-PAK",
+          "starts_at": "2027-04-05T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "wc-phase2-example-1-m6",
+          "home_id": "wc-WI",
+          "away_id": "wc-SL",
+          "starts_at": "2027-04-06T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        }
+      ]
+    }
+  ]
+}

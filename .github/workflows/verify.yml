@@ -1,0 +1,46 @@
+name: Verify Crease
+on: [push, pull_request]
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: crease
+          POSTGRES_USER: crease
+          POSTGRES_PASSWORD: crease_ci_only
+        ports: ["5432:5432"]
+        options: --health-cmd "pg_isready -U crease" --health-interval 5s --health-retries 12
+      redis:
+        image: redis:7-alpine
+        ports: ["6379:6379"]
+        options: --health-cmd "redis-cli ping" --health-interval 5s --health-retries 12
+    env:
+      PYTHONPATH: ${{ github.workspace }}/backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - uses: actions/setup-node@v4
+        with: {node-version: "22"}
+      - run: pip install -r backend/requirements-dev.txt
+      - run: python -m unittest discover -s backend/tests -v
+      - name: Build frontend
+        working-directory: frontend
+        run: npm install && npm test && npm run build
+      - name: Migrate PostgreSQL and verify the Celery path
+        env:
+          DATABASE_URL: postgresql+psycopg://crease:crease_ci_only@localhost:5432/crease
+          REDIS_URL: redis://localhost:6379/0
+          JOB_MODE: celery
+          DEMO_SEED: "true"
+        run: |
+          (cd backend && alembic upgrade head)
+          python -m app.manage init-demo
+          celery -A app.jobs:celery_app worker --loglevel=info --concurrency=2 > artifacts/worker-ci.log 2>&1 &
+          WORKER_PID=$!
+          python -m uvicorn app.main:app --host 127.0.0.1 --port 8000 > artifacts/api-ci.log 2>&1 &
+          API_PID=$!
+          trap 'kill "$WORKER_PID" "$API_PID" || true' EXIT
+          python scripts/smoke_stack.py --expect-mode celery

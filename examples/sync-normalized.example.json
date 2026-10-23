@@ -1,0 +1,7 @@
+{
+  "stage_id": "ipl-phase2-example-0",
+  "provider": "normalized_file",
+  "enabled": false,
+  "interval_seconds": 43200,
+  "file_path": "examples/results-feed.example.json"
+}

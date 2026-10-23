@@ -1,0 +1,445 @@
+{
+  "schema_version": 1,
+  "tournament": {
+    "id": "bbl",
+    "name": "Big Bash League",
+    "country": "Australia"
+  },
+  "id": "bbl-phase2-example",
+  "name": "Phase 2 example season",
+  "source": "demo",
+  "teams": [
+    {
+      "id": "bbl-SIX",
+      "name": "Sydney Sixers",
+      "short_name": "SIX",
+      "color": "#f882bc"
+    },
+    {
+      "id": "bbl-SCO",
+      "name": "Perth Scorchers",
+      "short_name": "SCO",
+      "color": "#ff9a50"
+    },
+    {
+      "id": "bbl-HEA",
+      "name": "Brisbane Heat",
+      "short_name": "HEA",
+      "color": "#63d2c8"
+    },
+    {
+      "id": "bbl-STA",
+      "name": "Melbourne Stars",
+      "short_name": "STA",
+      "color": "#86cb80"
+    },
+    {
+      "id": "bbl-THU",
+      "name": "Sydney Thunder",
+      "short_name": "THU",
+      "color": "#cef15b"
+    },
+    {
+      "id": "bbl-REN",
+      "name": "Melbourne Renegades",
+      "short_name": "REN",
+      "color": "#fa6574"
+    },
+    {
+      "id": "bbl-HUR",
+      "name": "Hobart Hurricanes",
+      "short_name": "HUR",
+      "color": "#b799ff"
+    },
+    {
+      "id": "bbl-STR",
+      "name": "Adelaide Strikers",
+      "short_name": "STR",
+      "color": "#5297ff"
+    }
+  ],
+  "stages": [
+    {
+      "id": "bbl-phase2-example-0",
+      "name": "League stage",
+      "rules": {
+        "qualifying_spots": 4,
+        "win_points": 2,
+        "loss_points": 0,
+        "washout_points": 1,
+        "tie_breakers": [
+          "nrr"
+        ],
+        "team_count": 8,
+        "matches_per_team": 10,
+        "stage_format": "league",
+        "regulation_overs": 20,
+        "schedule_complete": true
+      },
+      "entries": [
+        {
+          "team_id": "bbl-SIX",
+          "nrr": 0.0,
+          "rating": 1500.0
+        },
+        {
+          "team_id": "bbl-SCO",
+          "nrr": 0.0,
+          "rating": 1500.0
+        },
+        {
+          "team_id": "bbl-HEA",
+          "nrr": 0.0,
+          "rating": 1500.0
+        },
+        {
+          "team_id": "bbl-STA",
+          "nrr": 0.0,
+          "rating": 1500.0
+        },
+        {
+          "team_id": "bbl-THU",
+          "nrr": 0.0,
+          "rating": 1500.0
+        },
+        {
+          "team_id": "bbl-REN",
+          "nrr": 0.0,
+          "rating": 1500.0
+        },
+        {
+          "team_id": "bbl-HUR",
+          "nrr": 0.0,
+          "rating": 1500.0
+        },
+        {
+          "team_id": "bbl-STR",
+          "nrr": 0.0,
+          "rating": 1500.0
+        }
+      ],
+      "fixtures": [
+        {
+          "id": "bbl-phase2-example-0-m1",
+          "home_id": "bbl-SIX",
+          "away_id": "bbl-STR",
+          "starts_at": "2027-04-01T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m2",
+          "home_id": "bbl-SCO",
+          "away_id": "bbl-HUR",
+          "starts_at": "2027-04-02T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m3",
+          "home_id": "bbl-HEA",
+          "away_id": "bbl-REN",
+          "starts_at": "2027-04-03T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m4",
+          "home_id": "bbl-STA",
+          "away_id": "bbl-THU",
+          "starts_at": "2027-04-04T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m5",
+          "home_id": "bbl-SIX",
+          "away_id": "bbl-HUR",
+          "starts_at": "2027-04-05T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m6",
+          "home_id": "bbl-STR",
+          "away_id": "bbl-REN",
+          "starts_at": "2027-04-06T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m7",
+          "home_id": "bbl-SCO",
+          "away_id": "bbl-THU",
+          "starts_at": "2027-04-07T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m8",
+          "home_id": "bbl-HEA",
+          "away_id": "bbl-STA",
+          "starts_at": "2027-04-08T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m9",
+          "home_id": "bbl-SIX",
+          "away_id": "bbl-REN",
+          "starts_at": "2027-04-09T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m10",
+          "home_id": "bbl-HUR",
+          "away_id": "bbl-THU",
+          "starts_at": "2027-04-10T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m11",
+          "home_id": "bbl-STR",
+          "away_id": "bbl-STA",
+          "starts_at": "2027-04-11T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m12",
+          "home_id": "bbl-SCO",
+          "away_id": "bbl-HEA",
+          "starts_at": "2027-04-12T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m13",
+          "home_id": "bbl-SIX",
+          "away_id": "bbl-THU",
+          "starts_at": "2027-04-13T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m14",
+          "home_id": "bbl-REN",
+          "away_id": "bbl-STA",
+          "starts_at": "2027-04-14T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m15",
+          "home_id": "bbl-HUR",
+          "away_id": "bbl-HEA",
+          "starts_at": "2027-04-15T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m16",
+          "home_id": "bbl-STR",
+          "away_id": "bbl-SCO",
+          "starts_at": "2027-04-16T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m17",
+          "home_id": "bbl-SIX",
+          "away_id": "bbl-STA",
+          "starts_at": "2027-04-17T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m18",
+          "home_id": "bbl-THU",
+          "away_id": "bbl-HEA",
+          "starts_at": "2027-04-18T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m19",
+          "home_id": "bbl-REN",
+          "away_id": "bbl-SCO",
+          "starts_at": "2027-04-19T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m20",
+          "home_id": "bbl-HUR",
+          "away_id": "bbl-STR",
+          "starts_at": "2027-04-20T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m21",
+          "home_id": "bbl-SIX",
+          "away_id": "bbl-HEA",
+          "starts_at": "2027-04-21T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m22",
+          "home_id": "bbl-STA",
+          "away_id": "bbl-SCO",
+          "starts_at": "2027-04-22T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m23",
+          "home_id": "bbl-THU",
+          "away_id": "bbl-STR",
+          "starts_at": "2027-04-23T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m24",
+          "home_id": "bbl-REN",
+          "away_id": "bbl-HUR",
+          "starts_at": "2027-04-24T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m25",
+          "home_id": "bbl-SIX",
+          "away_id": "bbl-SCO",
+          "starts_at": "2027-04-25T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m26",
+          "home_id": "bbl-HEA",
+          "away_id": "bbl-STR",
+          "starts_at": "2027-04-26T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m27",
+          "home_id": "bbl-STA",
+          "away_id": "bbl-HUR",
+          "starts_at": "2027-04-27T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m28",
+          "home_id": "bbl-THU",
+          "away_id": "bbl-REN",
+          "starts_at": "2027-04-28T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m29",
+          "home_id": "bbl-SIX",
+          "away_id": "bbl-STR",
+          "starts_at": "2027-04-29T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m30",
+          "home_id": "bbl-SCO",
+          "away_id": "bbl-HUR",
+          "starts_at": "2027-04-30T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m31",
+          "home_id": "bbl-HEA",
+          "away_id": "bbl-REN",
+          "starts_at": "2027-05-01T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m32",
+          "home_id": "bbl-STA",
+          "away_id": "bbl-THU",
+          "starts_at": "2027-05-02T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m33",
+          "home_id": "bbl-SIX",
+          "away_id": "bbl-HUR",
+          "starts_at": "2027-05-03T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m34",
+          "home_id": "bbl-STR",
+          "away_id": "bbl-REN",
+          "starts_at": "2027-05-04T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m35",
+          "home_id": "bbl-SCO",
+          "away_id": "bbl-THU",
+          "starts_at": "2027-05-05T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m36",
+          "home_id": "bbl-HEA",
+          "away_id": "bbl-STA",
+          "starts_at": "2027-05-06T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m37",
+          "home_id": "bbl-SIX",
+          "away_id": "bbl-REN",
+          "starts_at": "2027-05-07T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m38",
+          "home_id": "bbl-HUR",
+          "away_id": "bbl-THU",
+          "starts_at": "2027-05-08T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m39",
+          "home_id": "bbl-STR",
+          "away_id": "bbl-STA",
+          "starts_at": "2027-05-09T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "bbl-phase2-example-0-m40",
+          "home_id": "bbl-SCO",
+          "away_id": "bbl-HEA",
+          "starts_at": "2027-05-10T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        }
+      ]
+    }
+  ]
+}

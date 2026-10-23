@@ -1,0 +1,343 @@
+{
+  "schema_version": 1,
+  "tournament": {
+    "id": "psl",
+    "name": "Pakistan Super League",
+    "country": "Pakistan"
+  },
+  "id": "psl-phase2-example",
+  "name": "Phase 2 example season",
+  "source": "demo",
+  "teams": [
+    {
+      "id": "psl-ISU",
+      "name": "Islamabad United",
+      "short_name": "ISU",
+      "color": "#fa6574"
+    },
+    {
+      "id": "psl-MS",
+      "name": "Multan Sultans",
+      "short_name": "MS",
+      "color": "#63d2c8"
+    },
+    {
+      "id": "psl-LQ",
+      "name": "Lahore Qalandars",
+      "short_name": "LQ",
+      "color": "#cef15b"
+    },
+    {
+      "id": "psl-PZ",
+      "name": "Peshawar Zalmi",
+      "short_name": "PZ",
+      "color": "#f7ce45"
+    },
+    {
+      "id": "psl-QG",
+      "name": "Quetta Gladiators",
+      "short_name": "QG",
+      "color": "#b799ff"
+    },
+    {
+      "id": "psl-KK",
+      "name": "Karachi Kings",
+      "short_name": "KK",
+      "color": "#5297ff"
+    }
+  ],
+  "stages": [
+    {
+      "id": "psl-phase2-example-0",
+      "name": "League stage",
+      "rules": {
+        "qualifying_spots": 4,
+        "win_points": 2,
+        "loss_points": 0,
+        "washout_points": 1,
+        "tie_breakers": [
+          "nrr"
+        ],
+        "team_count": 6,
+        "matches_per_team": 10,
+        "stage_format": "league",
+        "regulation_overs": 20,
+        "schedule_complete": true
+      },
+      "entries": [
+        {
+          "team_id": "psl-ISU",
+          "nrr": 0.0,
+          "rating": 1500.0
+        },
+        {
+          "team_id": "psl-MS",
+          "nrr": 0.0,
+          "rating": 1500.0
+        },
+        {
+          "team_id": "psl-LQ",
+          "nrr": 0.0,
+          "rating": 1500.0
+        },
+        {
+          "team_id": "psl-PZ",
+          "nrr": 0.0,
+          "rating": 1500.0
+        },
+        {
+          "team_id": "psl-QG",
+          "nrr": 0.0,
+          "rating": 1500.0
+        },
+        {
+          "team_id": "psl-KK",
+          "nrr": 0.0,
+          "rating": 1500.0
+        }
+      ],
+      "fixtures": [
+        {
+          "id": "psl-phase2-example-0-m1",
+          "home_id": "psl-ISU",
+          "away_id": "psl-KK",
+          "starts_at": "2027-04-01T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "psl-phase2-example-0-m2",
+          "home_id": "psl-MS",
+          "away_id": "psl-QG",
+          "starts_at": "2027-04-02T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "psl-phase2-example-0-m3",
+          "home_id": "psl-LQ",
+          "away_id": "psl-PZ",
+          "starts_at": "2027-04-03T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "psl-phase2-example-0-m4",
+          "home_id": "psl-ISU",
+          "away_id": "psl-QG",
+          "starts_at": "2027-04-04T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "psl-phase2-example-0-m5",
+          "home_id": "psl-KK",
+          "away_id": "psl-PZ",
+          "starts_at": "2027-04-05T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "psl-phase2-example-0-m6",
+          "home_id": "psl-MS",
+          "away_id": "psl-LQ",
+          "starts_at": "2027-04-06T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "psl-phase2-example-0-m7",
+          "home_id": "psl-ISU",
+          "away_id": "psl-PZ",
+          "starts_at": "2027-04-07T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "psl-phase2-example-0-m8",
+          "home_id": "psl-QG",
+          "away_id": "psl-LQ",
+          "starts_at": "2027-04-08T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "psl-phase2-example-0-m9",
+          "home_id": "psl-KK",
+          "away_id": "psl-MS",
+          "starts_at": "2027-04-09T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "psl-phase2-example-0-m10",
+          "home_id": "psl-ISU",
+          "away_id": "psl-LQ",
+          "starts_at": "2027-04-10T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "psl-phase2-example-0-m11",
+          "home_id": "psl-PZ",
+          "away_id": "psl-MS",
+          "starts_at": "2027-04-11T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "psl-phase2-example-0-m12",
+          "home_id": "psl-QG",
+          "away_id": "psl-KK",
+          "starts_at": "2027-04-12T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "psl-phase2-example-0-m13",
+          "home_id": "psl-ISU",
+          "away_id": "psl-MS",
+          "starts_at": "2027-04-13T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "psl-phase2-example-0-m14",
+          "home_id": "psl-LQ",
+          "away_id": "psl-KK",
+          "starts_at": "2027-04-14T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "psl-phase2-example-0-m15",
+          "home_id": "psl-PZ",
+          "away_id": "psl-QG",
+          "starts_at": "2027-04-15T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "psl-phase2-example-0-m16",
+          "home_id": "psl-ISU",
+          "away_id": "psl-KK",
+          "starts_at": "2027-04-16T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "psl-phase2-example-0-m17",
+          "home_id": "psl-MS",
+          "away_id": "psl-QG",
+          "starts_at": "2027-04-17T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "psl-phase2-example-0-m18",
+          "home_id": "psl-LQ",
+          "away_id": "psl-PZ",
+          "starts_at": "2027-04-18T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "psl-phase2-example-0-m19",
+          "home_id": "psl-ISU",
+          "away_id": "psl-QG",
+          "starts_at": "2027-04-19T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "psl-phase2-example-0-m20",
+          "home_id": "psl-KK",
+          "away_id": "psl-PZ",
+          "starts_at": "2027-04-20T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "psl-phase2-example-0-m21",
+          "home_id": "psl-MS",
+          "away_id": "psl-LQ",
+          "starts_at": "2027-04-21T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "psl-phase2-example-0-m22",
+          "home_id": "psl-ISU",
+          "away_id": "psl-PZ",
+          "starts_at": "2027-04-22T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "psl-phase2-example-0-m23",
+          "home_id": "psl-QG",
+          "away_id": "psl-LQ",
+          "starts_at": "2027-04-23T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "psl-phase2-example-0-m24",
+          "home_id": "psl-KK",
+          "away_id": "psl-MS",
+          "starts_at": "2027-04-24T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "psl-phase2-example-0-m25",
+          "home_id": "psl-ISU",
+          "away_id": "psl-LQ",
+          "starts_at": "2027-04-25T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "psl-phase2-example-0-m26",
+          "home_id": "psl-PZ",
+          "away_id": "psl-MS",
+          "starts_at": "2027-04-26T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "psl-phase2-example-0-m27",
+          "home_id": "psl-QG",
+          "away_id": "psl-KK",
+          "starts_at": "2027-04-27T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "psl-phase2-example-0-m28",
+          "home_id": "psl-ISU",
+          "away_id": "psl-MS",
+          "starts_at": "2027-04-28T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "psl-phase2-example-0-m29",
+          "home_id": "psl-LQ",
+          "away_id": "psl-KK",
+          "starts_at": "2027-04-29T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        },
+        {
+          "id": "psl-phase2-example-0-m30",
+          "home_id": "psl-PZ",
+          "away_id": "psl-QG",
+          "starts_at": "2027-04-30T14:00:00Z",
+          "venue": "Synthetic Example Ground",
+          "outcome": "pending"
+        }
+      ]
+    }
+  ]
+}

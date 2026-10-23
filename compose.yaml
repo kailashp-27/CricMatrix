@@ -1,0 +1,59 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: crease
+      POSTGRES_USER: crease
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes: ["postgres-data:/var/lib/postgresql/data"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U crease"]
+      interval: 5s
+      retries: 12
+  redis:
+    image: redis:7-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes: ["redis-data:/data"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      retries: 12
+  api:
+    build: ./backend
+    command: ["sh", "-c", "alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port 8000"]
+    environment: &backend-env
+      DATABASE_URL: postgresql+psycopg://crease:${POSTGRES_PASSWORD}@postgres:5432/crease
+      REDIS_URL: redis://redis:6379/0
+      JOB_MODE: celery
+      DEMO_SEED: "true"
+      CRICKETDATA_API_KEY: ${CRICKETDATA_API_KEY:-}
+      PROVIDER_DAILY_BUDGET: ${PROVIDER_DAILY_BUDGET:-0}
+      CRICKETDATA_BASE_URL: ${CRICKETDATA_BASE_URL:-https://api.cricapi.com/v1}
+    ports: ["127.0.0.1:8000:8000"]
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/api/health')"]
+      interval: 5s
+      retries: 20
+  worker:
+    build: ./backend
+    environment: *backend-env
+    command: celery -A app.jobs:celery_app worker --loglevel=info --concurrency=2
+    depends_on:
+      api: {condition: service_healthy}
+  scheduler:
+    build: ./backend
+    environment: *backend-env
+    command: celery -A app.jobs:celery_app beat --loglevel=info
+    depends_on:
+      api: {condition: service_healthy}
+  frontend:
+    build: ./frontend
+    ports: ["127.0.0.1:5173:80"]
+    depends_on:
+      api: {condition: service_healthy}
+volumes:
+  postgres-data:
+  redis-data:

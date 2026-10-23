@@ -1,0 +1,13 @@
+export type Outcome = 'home' | 'away' | 'washout'
+export type Team = { id: string; name: string; short_name: string; color: string; nrr: number; rating: number }
+export type Row = Team & { rank: number; played: number; won: number; lost: number; washouts: number; points: number; remaining: number; max_points: number }
+export type Fixture = { id: string; home_id: string; away_id: string; starts_at: string; venue: string; outcome: Outcome | 'pending' }
+export type Rules = { qualifying_spots: number; win_points: number; loss_points: number; washout_points: number; tie_breakers: string[]; team_count: number; matches_per_team: number | null; stage_format: 'league' | 'group'; schedule_complete: boolean; regulation_overs: number }
+export type Stage = { id: string; name: string; rules: Rules }
+export type Tournament = { id: string; name: string; country: string; seasons: { id: string; name: string; source: string; stages: Stage[] }[] }
+export type SyncStatus = { configured: boolean; provider?: string; status: string; stale: boolean; last_success_at?: string | null; last_attempt_at?: string | null; error?: string | null }
+export type Snapshot = { stage_id: string; name: string; source: string; revision: number; updated_at: string; rules: Rules; teams: Team[]; fixtures: Fixture[]; standings: Row[]; sync?: SyncStatus; nrr_trusted?: boolean }
+export type Probability = { team_id: string; qualification_pct: number; interval_95: [number, number]; status: 'alive' | 'eliminated' | 'qualified' | 'unknown'; basis: string }
+export type Prediction = { stage_id: string; revision: number; iterations: number; probabilities: Probability[]; tie_model: string; standings: Row[] }
+export type Job = { id: string; status: 'queued' | 'running' | 'completed' | 'failed'; result?: Prediction; error?: string }
+export type Scenario = { version: 1; stageId: string; revision: number; overrides: Record<string, Outcome>; model: 'equal' | 'rating'; washoutProbability: number }

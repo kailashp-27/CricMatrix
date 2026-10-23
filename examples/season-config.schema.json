@@ -1,0 +1,361 @@
+{
+  "$defs": {
+    "EntryConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "team_id": {
+          "maxLength": 80,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]*$",
+          "title": "Team Id",
+          "type": "string"
+        },
+        "nrr": {
+          "default": 0,
+          "title": "Nrr",
+          "type": "number"
+        },
+        "rating": {
+          "default": 1500,
+          "maximum": 4000,
+          "minimum": 0,
+          "title": "Rating",
+          "type": "number"
+        }
+      },
+      "required": [
+        "team_id"
+      ],
+      "title": "EntryConfig",
+      "type": "object"
+    },
+    "FixtureConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 80,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]*$",
+          "title": "Id",
+          "type": "string"
+        },
+        "home_id": {
+          "maxLength": 80,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]*$",
+          "title": "Home Id",
+          "type": "string"
+        },
+        "away_id": {
+          "maxLength": 80,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]*$",
+          "title": "Away Id",
+          "type": "string"
+        },
+        "starts_at": {
+          "format": "date-time",
+          "title": "Starts At",
+          "type": "string"
+        },
+        "venue": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Venue",
+          "type": "string"
+        },
+        "outcome": {
+          "default": "pending",
+          "enum": [
+            "pending",
+            "home",
+            "away",
+            "washout"
+          ],
+          "title": "Outcome",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "home_id",
+        "away_id",
+        "starts_at",
+        "venue"
+      ],
+      "title": "FixtureConfig",
+      "type": "object"
+    },
+    "Rules": {
+      "additionalProperties": false,
+      "properties": {
+        "qualifying_spots": {
+          "maximum": 16,
+          "minimum": 1,
+          "title": "Qualifying Spots",
+          "type": "integer"
+        },
+        "win_points": {
+          "const": 2,
+          "default": 2,
+          "title": "Win Points",
+          "type": "integer"
+        },
+        "loss_points": {
+          "const": 0,
+          "default": 0,
+          "title": "Loss Points",
+          "type": "integer"
+        },
+        "washout_points": {
+          "const": 1,
+          "default": 1,
+          "title": "Washout Points",
+          "type": "integer"
+        },
+        "tie_breakers": {
+          "items": {
+            "enum": [
+              "wins",
+              "nrr"
+            ],
+            "type": "string"
+          },
+          "maxItems": 2,
+          "minItems": 1,
+          "title": "Tie Breakers",
+          "type": "array"
+        },
+        "team_count": {
+          "anyOf": [
+            {
+              "maximum": 16,
+              "minimum": 2,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Team Count"
+        },
+        "matches_per_team": {
+          "anyOf": [
+            {
+              "maximum": 100,
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Matches Per Team"
+        },
+        "stage_format": {
+          "default": "league",
+          "enum": [
+            "league",
+            "group"
+          ],
+          "title": "Stage Format",
+          "type": "string"
+        },
+        "regulation_overs": {
+          "default": 20,
+          "maximum": 100,
+          "minimum": 1,
+          "title": "Regulation Overs",
+          "type": "integer"
+        },
+        "schedule_complete": {
+          "default": true,
+          "title": "Schedule Complete",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "qualifying_spots"
+      ],
+      "title": "Rules",
+      "type": "object"
+    },
+    "StageConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 80,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]*$",
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "rules": {
+          "$ref": "#/$defs/Rules"
+        },
+        "entries": {
+          "items": {
+            "$ref": "#/$defs/EntryConfig"
+          },
+          "maxItems": 16,
+          "minItems": 2,
+          "title": "Entries",
+          "type": "array"
+        },
+        "fixtures": {
+          "items": {
+            "$ref": "#/$defs/FixtureConfig"
+          },
+          "maxItems": 800,
+          "title": "Fixtures",
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "rules",
+        "entries"
+      ],
+      "title": "StageConfig",
+      "type": "object"
+    },
+    "TeamConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 80,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]*$",
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "short_name": {
+          "maxLength": 8,
+          "minLength": 1,
+          "title": "Short Name",
+          "type": "string"
+        },
+        "color": {
+          "pattern": "^#[0-9a-fA-F]{6}$",
+          "title": "Color",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "short_name",
+        "color"
+      ],
+      "title": "TeamConfig",
+      "type": "object"
+    },
+    "TournamentConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "maxLength": 80,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]*$",
+          "title": "Id",
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "country": {
+          "maxLength": 160,
+          "minLength": 1,
+          "title": "Country",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "country"
+      ],
+      "title": "TournamentConfig",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "default": 1,
+      "title": "Schema Version",
+      "type": "integer"
+    },
+    "tournament": {
+      "$ref": "#/$defs/TournamentConfig"
+    },
+    "id": {
+      "maxLength": 80,
+      "minLength": 1,
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]*$",
+      "title": "Id",
+      "type": "string"
+    },
+    "name": {
+      "maxLength": 160,
+      "minLength": 1,
+      "title": "Name",
+      "type": "string"
+    },
+    "source": {
+      "default": "manual",
+      "enum": [
+        "demo",
+        "manual"
+      ],
+      "title": "Source",
+      "type": "string"
+    },
+    "teams": {
+      "items": {
+        "$ref": "#/$defs/TeamConfig"
+      },
+      "maxItems": 64,
+      "minItems": 2,
+      "title": "Teams",
+      "type": "array"
+    },
+    "stages": {
+      "items": {
+        "$ref": "#/$defs/StageConfig"
+      },
+      "maxItems": 32,
+      "minItems": 1,
+      "title": "Stages",
+      "type": "array"
+    }
+  },
+  "required": [
+    "tournament",
+    "id",
+    "name",
+    "teams",
+    "stages"
+  ],
+  "title": "SeasonConfig",
+  "type": "object"
+}
