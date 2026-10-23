@@ -9,11 +9,13 @@ The score feed and the qualification explorer have different data requirements:
 | Feature | Available now | Limits |
 | --- | --- | --- |
 | Cross-competition score feed | Public ESPNcricinfo RSS, no account required | Score headlines only; competition names, full schedules and match-state flags are absent. Publisher timestamps determine freshness. |
-| Structured match discovery | CricketData adapter for T20, ODI and Test matches | Requires your private API key, provider coverage and a positive daily request budget. Not live-verified with an account yet. |
+| Structured match discovery | CricketData adapter for T20, ODI and Test matches; authenticated requests verified | Requires your private API key, provider coverage and a positive daily request budget. Match status can be present without score details. |
 | Tournament discovery | Paginated CricketData series discovery and cached competition names | Coverage depends on the provider and plan; page limits are reported explicitly. |
 | Qualification explorer | IPL, BBL, PSL and World Cup **synthetic examples**, plus operator-configured seasons | Examples are not current official seasons. Real qualification requires complete stage schedules, confirmed rules, results and trusted NRR. |
 
-**No provider account is configured.** On 24 October 2026, a direct request to ESPNcricinfo's public feed succeeded, but its publication timestamp was 18 October 2026. The app therefore marks that snapshot as delayed. A successful HTTP response does not mean the scores are current. The structured ESPN endpoint returned HTTP 403 and is not used.
+**Credentials are private and are not included in this repository.** On 24 October 2026, authenticated CricketData requests returned 25 matches across 10 competitions. Series IDs were resolved directly through `/series_info`, because the generic catalog's first pages contained future tours rather than those competitions. The account reported a 100-request daily limit. The provider marked one match in progress but supplied no score in either the list or detail response; authenticated access does not establish complete real-time coverage.
+
+The optional ESPNcricinfo public RSS request also succeeded, but its publication timestamp was 18 October 2026. The app marks such snapshots as delayed. The structured ESPN endpoint returned HTTP 403 and is not used.
 
 CricMatrix does not claim coverage of every tournament. It accepts the competitions returned by the provider without an IPL-only allowlist. Bilateral series, knockout stages, Test championship points percentages, bonus-point leagues and other unsupported scoring systems cannot be treated as ordinary 2/1/0 qualification tables.
 
@@ -56,7 +58,9 @@ The server fetches once per interval, shares the cached result with all visitors
 
 To use structured CricketData discovery, obtain your own key from [CricketData](https://cricketdata.org/), place it privately in `.env`, select `LIVE_FEED_PROVIDER=cricketdata`, and set `PROVIDER_DAILY_BUDGET` above zero. The key stays on the server. Do not commit it or put it in a `VITE_` variable.
 
-The adapter calls the documented generic `/currentMatches`, `/series`, `/series_info` and `/match_info` endpoints. It follows pagination and marks lists partial when `LIVE_MAX_PAGES` is reached. Match scores retain each innings and cricket overs notation. Tournament names refresh daily. Missing state flags remain unknown. No automatic fallback silently substitutes RSS for a failed configured provider.
+The adapter calls the documented generic `/currentMatches`, `/series`, `/series_info` and `/match_info` endpoints. It follows pagination and marks lists partial when `LIVE_MAX_PAGES` is reached. Match scores retain each innings and cricket overs notation. Tournament names refresh daily. Up to 10 competitions appearing in the match feed are resolved directly by ID, prioritizing in-progress matches, and cached for a day. This avoids relying on the first pages of a catalog that may start with future tours. Missing state flags remain unknown. No automatic fallback silently substitutes RSS for a failed configured provider.
+
+For a 100-request/day account, a cautious configuration is `LIVE_POLL_SECONDS=1200`, `LIVE_MAX_PAGES=1`, and `PROVIDER_DAILY_BUDGET=90`. One match page every 20 minutes uses 72 requests per full day, leaving room for name resolution and checks. More than one page is explicitly marked partial under this configuration. This is periodic near-live data, not second-by-second streaming. Higher request capacity permits more frequent polling but does not remove upstream delays or missing data.
 
 **Budget deliberately:** a 900-second interval uses 96 requests/day for just one match page, before series discovery and configured-stage result syncs. Multiple pages multiply that number. All CricketData requests share the persistent UTC daily budget; failed requests still count. Choose a provider plan and interval that fit your coverage needs. Setting a local budget does not purchase provider access.
 
@@ -147,7 +151,7 @@ Schema revision `0004` adds the persistent live-feed cache. Back up an existing 
 
 The live integration suite runs the production HTTP client against a local provider fixture server. It covers pagination, quotas, missing credentials, HTTP failures, malformed XML, stale timestamps, retained snapshots, match identities and feed leases. These tests prove adapter behavior against documented fixtures; they do not prove the coverage or timeliness of a paid provider account.
 
-See [VERIFICATION.md](VERIFICATION.md) for recorded results and [the pipeline guide](docs/data-pipeline.md) for ingestion details. The public feed has been fetched directly; authenticated CricketData remains unverified until a real account is configured.
+See [VERIFICATION.md](VERIFICATION.md) for recorded results and [the pipeline guide](docs/data-pipeline.md) for ingestion details. Public RSS and authenticated CricketData transport have been checked directly. Complete real-time score coverage and authoritative qualification inputs remain subject to verification.
 
 ## Model limits
 

@@ -154,9 +154,10 @@ def dispatch_syncs():
 
 def refresh_live_feed_task():
     if settings.live_feed_enabled:
-        from .live import refresh_feed, refresh_series
+        from .live import refresh_feed, refresh_series, refresh_match_series
         result = refresh_feed()
         if settings.live_feed_provider == 'cricketdata':
+            refresh_match_series()
             refresh_series()
         return result
     return {'status': 'disabled'}

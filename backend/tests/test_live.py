@@ -16,7 +16,7 @@ from sqlalchemy.orm import sessionmaker
 
 from app.config import settings
 from app.database import Base
-from app.live import parse_matches, parse_rss, read_feed, refresh_feed, refresh_series
+from app.live import parse_matches, parse_rss, read_feed, refresh_feed, refresh_series, refresh_match_series
 from app.models import LiveFeed, ProviderQuota
 from app.sync import SourceConfig, SyncFailure, fetch_cricketdata
 
@@ -174,6 +174,21 @@ class LiveTests(unittest.TestCase):
         self.responses[('/currentMatches', '1')] = self.json_response([row], 3)
         self.assertEqual(refresh_feed(self.factory)['error'], 'provider_pagination_repeated')
         with self.factory() as session: self.assertEqual(read_feed(session)['matches'], [])
+
+    def test_current_series_names_resolve_when_catalog_only_contains_future_tours(self):
+        settings.live_feed_provider = 'cricketdata'
+        row = self.row()
+        self.responses[('/currentMatches', '0')] = self.json_response([row], 1)
+        self.responses[('/series', '0')] = self.json_response([{'id': str(uuid4()), 'name': 'Future tour'}], 1)
+        self.responses[('/series_info', '0')] = (200, json.dumps({'status': 'success', 'data': {
+            'info': {'id': row['series_id'], 'name': 'Current qualifier', 'startdate': '2026-10-20'}, 'matchList': []}}).encode())
+        refresh_feed(self.factory); refresh_series(self.factory)
+        refresh_match_series(self.factory); refresh_match_series(self.factory)
+        with self.factory() as session:
+            feed = read_feed(session)
+            self.assertEqual(feed['matches'][0]['series_name'], 'Current qualifier')
+            self.assertIn('Future tour', [s['name'] for s in feed['series']])
+        self.assertEqual([c[0] for c in self.calls].count('/series_info'), 1)
 
     def test_stage_result_sync_uses_generic_match_info_and_bounds_catch_up(self):
         series = uuid4(); ids = [uuid4() for _ in range(3)]

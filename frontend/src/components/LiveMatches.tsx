@@ -40,6 +40,7 @@ export function LiveMatches() {
     <div className={`feed-status ${feed?.stale ? 'feed-stale' : ''}`} role="status">
       <strong>{!feed ? 'Loading score feed…' : !feed.enabled ? 'Score feed paused' : feed.stale ? 'Feed delayed / freshness unverified' : 'Score feed available'}</strong>
       {feed && <span>{provider}{feed.observed_at ? ` · ${feed.timestamp_basis === 'publisher' ? 'Published' : 'Retrieved'} ${new Date(feed.observed_at).toLocaleString()}` : ' · Waiting for the first successful fetch'}</span>}
+      {feed?.enabled && <span>Server refresh: every {Math.ceil(feed.poll_seconds / 60)} minutes</span>}
       {feed?.error && <span>Refresh failed. Showing the last available scores.</span>}
     </div>
     {error && <p className="error" role="alert">{error}</p>}
@@ -47,6 +48,7 @@ export function LiveMatches() {
     <div className="live-match-grid">{matches.map((match) => <article className="live-match" key={match.id}>
       <div className="live-meta"><span>{match.series_name || (match.series_id ? `Series ${match.series_id.slice(0, 8)}` : 'Competition not supplied')}</span><span>{feed?.stale ? 'DELAYED' : match.state === 'unknown' ? 'SCORE UPDATE' : match.state.toUpperCase()}</span></div>
       <h3>{match.title}</h3>{match.scores.map((score, index) => <p key={index} className="live-score">{score}</p>)}
+      {match.state === 'live' && match.scores.length === 0 && <p className="live-match-status">Provider marks this match in progress; score details are unavailable.</p>}
       <p className="live-match-status">{match.status}</p>{match.venue && <p className="live-match-status">{match.venue}</p>}
       {match.url && <a href={match.url} target="_blank" rel="noopener noreferrer">Scorecard on ESPNcricinfo <ArrowUpRight size={12} /></a>}
     </article>)}</div>

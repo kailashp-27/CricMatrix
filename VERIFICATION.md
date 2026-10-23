@@ -1,5 +1,14 @@
 # Verification record
 
+## 24 October 2026 — authenticated CricketData activation
+
+- Saved credentials only in the Git-ignored local `.env`. No key is included in source, fixtures, documentation or public API responses.
+- Authenticated `/currentMatches`, `/series`, `/series_info` and `/match_info` requests succeeded. The account reported 100 requests/day; setup and validation used 16 provider requests.
+- Cached 25 matches across 10 competitions, resolving all 25 competition names by exact series ID. The first 50 generic catalog entries contained future tours and did not match the current competitions, so the implementation now caches targeted series lookups for a day, prioritizing in-progress matches.
+- The provider marked 24 matches completed and one in progress. Both list and detail endpoints supplied no score for the in-progress match. This is an upstream coverage/freshness limitation; current ball-by-ball scoring is not established.
+- Local configuration uses a 20-minute interval, one match page per refresh and a 90-request application budget. It is not second-by-second real-time data. Page limits remain explicit; wider coverage or faster polling needs a suitable provider allowance.
+- All 13 local HTTP integration tests passed after the competition-name fix. The new regression proves that current series names resolve even when the general catalog contains only future tours.
+
 ## 24 October 2026 — cross-competition data pipeline
 
 This section supersedes the workstation limitations recorded in the historical sections below.

@@ -7,7 +7,7 @@ from sqlalchemy import select
 
 from .config import settings
 from .database import SessionLocal
-from .live import refresh_feed, refresh_series
+from .live import refresh_feed, refresh_series, refresh_match_series
 from .models import SyncSource
 
 logger = logging.getLogger(__name__)
@@ -17,6 +17,7 @@ def local_tick():
     if settings.live_feed_enabled:
         refresh_feed()
         if settings.live_feed_provider == 'cricketdata':
+            refresh_match_series()
             refresh_series()
     from .jobs import sync_stage_task
     with SessionLocal() as session:

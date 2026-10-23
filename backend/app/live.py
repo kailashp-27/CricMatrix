@@ -220,12 +220,49 @@ def refresh_series(factory=SessionLocal):
     return refresh_cached('cricketdata_series', 86400, factory, fetch_series)
 
 
+def series_cache_key(series_id):
+    return 'series:' + UUID(series_id).hex
+
+
+def refresh_match_series(factory=SessionLocal):
+    """The generic catalog starts with future tours; resolve current IDs directly.
+
+    Cache each requested identity for a day rather than paging through hundreds
+    of unrelated future tournaments on a small account's request allowance.
+    """
+    with factory() as session:
+        feed = session.get(LiveFeed, 'cricketdata')
+        matches = feed.payload.get('matches', []) if feed else []
+    ids = list(dict.fromkeys(m['series_id'] for m in sorted(matches, key=lambda m: m['state'] != 'live') if m['series_id']))
+    results = []
+    for identity in ids[:10]:
+        def fetch_detail(factory):
+            with httpx.Client(timeout=10, follow_redirects=False) as client:
+                data, _ = CricketDataClient(factory).get(client, 'series_info', id=identity, offset=0)
+            info = data.get('info') if isinstance(data, dict) else None
+            if not isinstance(info, dict) or info.get('id') != identity or not isinstance(info.get('name'), str):
+                raise SyncFailure('provider_series_identity_mismatch')
+            return {'series': [{'id': identity, 'name': info['name'],
+                'start_date': info.get('startDate') or info.get('startdate'),
+                'end_date': info.get('endDate') or info.get('enddate')}], 'observed_at': utc_now()}
+        result = refresh_cached(series_cache_key(identity), 86400, factory, fetch_detail)
+        results.append(result)
+        if result.get('error') in {'daily_budget_exhausted', 'provider_credentials_or_budget_missing', 'provider_rate_limited'}:
+            break
+    return results
+
+
 def read_feed(session):
     provider = settings.live_feed_provider
     feed = session.get(LiveFeed, provider)
     payload = feed.payload if feed else {}
     catalog = session.get(LiveFeed, 'cricketdata_series') if provider == 'cricketdata' else None
-    series = catalog.payload.get('series', []) if catalog else []
+    series_by_id = {s['id']: s for s in catalog.payload.get('series', [])} if catalog else {}
+    for identity in {m['series_id'] for m in payload.get('matches', []) if m['series_id']}:
+        detail = session.get(LiveFeed, series_cache_key(identity))
+        if detail:
+            series_by_id.update({s['id']: s for s in detail.payload.get('series', [])})
+    series = list(series_by_id.values())
     names = {s['id']: s['name'] for s in series}
     matches = [{**match, 'series_name': names.get(match['series_id'])} for match in payload.get('matches', [])]
     observed = payload.get('observed_at')
