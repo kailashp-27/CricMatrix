@@ -40,7 +40,7 @@ export function LiveMatches() {
     <div className={`feed-status ${feed?.stale ? 'feed-stale' : ''}`} role="status">
       <strong>{!feed ? 'Loading score feed…' : !feed.enabled ? 'Score feed paused' : feed.stale ? 'Feed delayed / freshness unverified' : 'Score feed available'}</strong>
       {feed && <span>{provider}{feed.observed_at ? ` · ${feed.timestamp_basis === 'publisher' ? 'Published' : 'Retrieved'} ${new Date(feed.observed_at).toLocaleString()}` : ' · Waiting for the first successful fetch'}</span>}
-      {feed?.enabled && <span>Server refresh: every {Math.ceil(feed.poll_seconds / 60)} minutes</span>}
+      {feed?.enabled && <span>Server refresh: every {feed.poll_seconds >= 3600 ? `${Math.ceil(feed.poll_seconds / 3600)} hours` : `${Math.ceil(feed.poll_seconds / 60)} minutes`}</span>}
       {feed?.error && <span>Refresh failed. Showing the last available scores.</span>}
     </div>
     {error && <p className="error" role="alert">{error}</p>}

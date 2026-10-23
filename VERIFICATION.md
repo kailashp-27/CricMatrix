@@ -1,5 +1,9 @@
 # Verification record
 
+## 24 October 2026 — daily refresh preference
+
+Changed the local provider refresh interval and the documented defaults to 86,400 seconds at the user's request. Existing cached data remains available; the next match fetch is due 24 hours after the last successful fetch. The UI displays the interval in hours. The earlier 20-minute activation settings below are historical.
+
 ## 24 October 2026 — authenticated CricketData activation
 
 - Saved credentials only in the Git-ignored local `.env`. No key is included in source, fixtures, documentation or public API responses.

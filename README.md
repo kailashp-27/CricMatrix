@@ -50,7 +50,7 @@ Defaults in `.env.example` use the public feed:
 LIVE_FEED_ENABLED=true
 LIVE_FEED_PROVIDER=espn_rss
 LIVE_FEED_URL=https://static.espncricinfo.com/rss/livescores.xml
-LIVE_POLL_SECONDS=120
+LIVE_POLL_SECONDS=86400
 LIVE_MAX_PAGES=4
 ```
 
@@ -60,7 +60,7 @@ To use structured CricketData discovery, obtain your own key from [CricketData](
 
 The adapter calls the documented generic `/currentMatches`, `/series`, `/series_info` and `/match_info` endpoints. It follows pagination and marks lists partial when `LIVE_MAX_PAGES` is reached. Match scores retain each innings and cricket overs notation. Tournament names refresh daily. Up to 10 competitions appearing in the match feed are resolved directly by ID, prioritizing in-progress matches, and cached for a day. This avoids relying on the first pages of a catalog that may start with future tours. Missing state flags remain unknown. No automatic fallback silently substitutes RSS for a failed configured provider.
 
-For a 100-request/day account, a cautious configuration is `LIVE_POLL_SECONDS=1200`, `LIVE_MAX_PAGES=1`, and `PROVIDER_DAILY_BUDGET=90`. One match page every 20 minutes uses 72 requests per full day, leaving room for name resolution and checks. More than one page is explicitly marked partial under this configuration. This is periodic near-live data, not second-by-second streaming. Higher request capacity permits more frequent polling but does not remove upstream delays or missing data.
+The selected schedule is **once every 24 hours** (`LIVE_POLL_SECONDS=86400`), with `LIVE_MAX_PAGES=1` and `PROVIDER_DAILY_BUDGET=90` in the local configuration. Each match page is requested once per day; competition-name resolution and configured stage syncs consume additional calls. More than one match page is explicitly marked partial under this configuration. Scores are daily snapshots and can be up to 24 hours old. Higher request capacity permits more frequent polling but does not remove upstream delays or missing data.
 
 **Budget deliberately:** a 900-second interval uses 96 requests/day for just one match page, before series discovery and configured-stage result syncs. Multiple pages multiply that number. All CricketData requests share the persistent UTC daily budget; failed requests still count. Choose a provider plan and interval that fit your coverage needs. Setting a local budget does not purchase provider access.
 

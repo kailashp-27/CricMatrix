@@ -19,7 +19,7 @@ class Settings(BaseSettings):
     live_feed_enabled: bool = True
     live_feed_provider: Literal['espn_rss', 'cricketdata'] = 'espn_rss'
     live_feed_url: str = 'https://static.espncricinfo.com/rss/livescores.xml'
-    live_poll_seconds: int = Field(default=120, ge=60, le=86400)
+    live_poll_seconds: int = Field(default=86400, ge=60, le=86400)
     live_max_pages: int = Field(default=4, ge=1, le=20)
 
     @model_validator(mode='after')

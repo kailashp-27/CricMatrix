@@ -32,7 +32,7 @@ services:
       LIVE_FEED_ENABLED: ${LIVE_FEED_ENABLED:-true}
       LIVE_FEED_PROVIDER: ${LIVE_FEED_PROVIDER:-espn_rss}
       LIVE_FEED_URL: ${LIVE_FEED_URL:-https://static.espncricinfo.com/rss/livescores.xml}
-      LIVE_POLL_SECONDS: ${LIVE_POLL_SECONDS:-120}
+      LIVE_POLL_SECONDS: ${LIVE_POLL_SECONDS:-86400}
       LIVE_MAX_PAGES: ${LIVE_MAX_PAGES:-4}
     ports: ["127.0.0.1:8000:8000"]
     depends_on:
