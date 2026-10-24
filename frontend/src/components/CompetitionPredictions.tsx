@@ -4,7 +4,7 @@ import { forecastCompetition } from '../api'
 import type { Outcome, Prediction } from '../types'
 
 type ScheduledMatch = { id: string; name: string; teams: string[]; starts_at: string; venue: string; format: string; state: string; status: string; outcome: Outcome | null; unresolved_result: boolean }
-type Analysis = { series_id: string; name: string; fixtures: ScheduledMatch[]; fetched_at: string | null; schedule_complete: boolean; qualification_eligible: boolean; qualification_blocker: string | null; teams: { id: string; name: string }[]; simulation_basis: string; assumptions: string[] }
+type Analysis = { series_id: string; revision: number; name: string; fixtures: ScheduledMatch[]; fetched_at: string | null; schedule_complete: boolean; qualification_eligible: boolean; qualification_blocker: string | null; teams: { id: string; name: string }[]; simulation_basis: string; assumptions: string[] }
 type Results = { baseline: Prediction; scenario: Prediction; key: string }
 
 export function CompetitionPredictions({ seriesId, refreshToken }: { seriesId: string; refreshToken: number }) {
@@ -44,25 +44,25 @@ export function CompetitionPredictions({ seriesId, refreshToken }: { seriesId: s
     const timer = window.setInterval(() => { if (document.visibilityState === 'visible') void load() }, 60000)
     return () => { controller.abort(); clearInterval(timer) }
   }, [seriesId, refreshToken])
-  const key = JSON.stringify([seriesId, analysis?.fetched_at, spots, model, rain, picks])
+  const key = JSON.stringify([seriesId, analysis?.revision, spots, model, rain, picks])
   useEffect(() => {
-    if (!requested || !accepted || !analysis?.qualification_eligible) { setBusy(false); return }
+    if (!requested || !accepted || !analysis?.qualification_eligible || loadError) { setBusy(false); return }
     const controller = new AbortController()
     setBusy(true); setForecastError('')
     const timer = setTimeout(async () => {
-      const body = { qualifying_spots: spots, accept_points_assumptions: true, model, iterations: 10000, washout_probability: rain / 100 }
+      const body = { qualifying_spots: spots, expected_revision: analysis.revision, accept_points_assumptions: true, model, iterations: 10000, washout_probability: rain / 100 }
       try {
         const baselinePromise = forecastCompetition(seriesId, { ...body, overrides: {} }, controller.signal)
         const scenarioPromise = Object.keys(picks).length ? forecastCompetition(seriesId, { ...body, overrides: picks }, controller.signal) : baselinePromise
         const [baseline, scenario] = await Promise.all([baselinePromise, scenarioPromise])
-        if (baseline.revision !== scenario.revision) throw new Error('The stored results changed during calculation. Refresh the table and calculate again.')
+        if (baseline.revision !== scenario.revision || baseline.revision !== analysis.revision) throw new Error('The stored results changed during calculation. Refresh the table and calculate again.')
         if (!controller.signal.aborted) setResults({ baseline, scenario, key })
       } catch (e) { if (!controller.signal.aborted) setForecastError((e as Error).message) }
       finally { if (!controller.signal.aborted) setBusy(false) }
     }, 350)
     return () => { controller.abort(); clearTimeout(timer) }
-  }, [key, requested, accepted, analysis?.qualification_eligible, retry])
-  const currentResults = results?.key === key && accepted ? results : null
+  }, [key, requested, accepted, analysis?.qualification_eligible, loadError, retry])
+  const currentResults = results?.key === key && accepted && analysis?.qualification_eligible && !loadError ? results : null
   const remaining = (analysis?.fixtures || []).filter((match) => match.state !== 'completed')
   const upcoming = remaining.filter((match) => match.state === 'upcoming' && Date.parse(match.starts_at) >= Date.now())
   const next = upcoming[0]

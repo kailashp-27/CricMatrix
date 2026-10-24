@@ -44,6 +44,9 @@ class APITests(unittest.TestCase):
                 route = f'/api/competitions/{identity}/forecast'
                 self.assertEqual(client.post(route, json=body).status_code, 422)
                 body['accept_points_assumptions'] = True
+                revision = analysis.json()['revision']
+                self.assertEqual(client.post(route, json={**body, 'expected_revision': revision + 1}).status_code, 409)
+                body['expected_revision'] = revision
                 completed = next(m for m in schedule['fixtures'] if m['state'] == 'completed')
                 self.assertEqual(client.post(route, json={**body, 'overrides': {completed['id']: 'away'}}).status_code, 409)
                 response = client.post(route, json=body)

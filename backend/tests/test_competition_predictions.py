@@ -3,7 +3,7 @@ import unittest
 from uuid import uuid4
 
 from app.competition_fixtures import normalize_schedule
-from app.competition_predictions import fixture_snapshot, record_rate, team_id
+from app.competition_predictions import fixture_snapshot, record_rate, source_revision, team_id
 from app.engine import simulate, standings, validate_overrides
 
 
@@ -28,6 +28,16 @@ def provider_rows():
 
 
 class CompetitionPredictionTests(unittest.TestCase):
+    def test_revision_tracks_results_and_table_without_relying_on_fetch_time(self):
+        schedule = schedule_data(); rows = provider_rows()
+        revision = source_revision(schedule, rows)
+        schedule['fetched_at'] = '2026-10-25T00:00:00+00:00'
+        self.assertEqual(source_revision(schedule, rows), revision)
+        rows[0]['won'] = 0
+        self.assertNotEqual(source_revision(schedule, rows), revision)
+        rows = provider_rows(); schedule['fixtures'][1]['outcome'] = 'home'
+        self.assertNotEqual(source_revision(schedule, rows), revision)
+
     def test_normalized_fixtures_keep_real_results_and_future_dates(self):
         schedule = schedule_data()
         self.assertTrue(schedule['schedule_complete'])

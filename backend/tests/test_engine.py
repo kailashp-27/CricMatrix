@@ -15,6 +15,15 @@ def snapshot(n=4, k=2):
 
 
 class EngineTests(unittest.TestCase):
+    def test_picked_win_and_loss_use_paired_baseline_samples(self):
+        data = snapshot(k=1)
+        for seed in range(32):
+            request = {'iterations': 1, 'seed': seed, 'model': 'equal', 'washout_probability': 0}
+            baseline = {p['team_id']: p['qualification_pct'] for p in simulate(data, request)['probabilities']}
+            scenario = {p['team_id']: p['qualification_pct'] for p in simulate(data, {**request, 'overrides': {'m0': 'home'}})['probabilities']}
+            self.assertGreaterEqual(scenario['0'], baseline['0'], f'Winning team decreased at seed {seed}')
+            self.assertLessEqual(scenario['1'], baseline['1'], f'Losing team increased at seed {seed}')
+
     def test_points_conservation_washout_and_no_mutation(self):
         data = snapshot()
         original = copy.deepcopy(data)

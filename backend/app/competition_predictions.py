@@ -19,6 +19,12 @@ def record_rate(row):
     return (row['won'] + 1) / (row['won'] + row['lost'] + 2)
 
 
+def source_revision(schedule, provider_rows):
+    state = json.dumps({'fixtures': schedule['fixtures'], 'rows': provider_rows,
+        'schedule_complete': schedule['schedule_complete'], 'expected_matches': schedule.get('expected_matches')}, sort_keys=True)
+    return int(hashlib.sha256(state.encode()).hexdigest()[:12], 16)
+
+
 def fixture_snapshot(schedule, provider_rows, qualifying_spots):
     fixtures = schedule['fixtures']
     if not schedule['schedule_complete']:
@@ -58,9 +64,8 @@ def fixture_snapshot(schedule, provider_rows, qualifying_spots):
         rate = record_rate(counts[name])
         teams.append({'id': team_id(name), 'name': name, 'short_name': by_name.get(name, {}).get('short_name') or name[:8],
             'color': '#b99aff', 'nrr': 0, 'rating': 1500 + 400 * math.log10(rate / (1 - rate))})
-    state = json.dumps({'fixtures': fixtures, 'rows': provider_rows}, sort_keys=True)
     return {'stage_id': schedule['series_id'], 'season_id': schedule['series_id'], 'name': schedule['name'],
-        'source': 'provider', 'revision': int(hashlib.sha256(state.encode()).hexdigest()[:8], 16),
+        'source': 'provider', 'revision': source_revision(schedule, provider_rows),
         'updated_at': schedule['fetched_at'], 'nrr_trusted': False,
         'rules': {'team_count': len(names), 'qualifying_spots': qualifying_spots, 'matches_per_team': None,
             'win_points': 2, 'loss_points': 0, 'washout_points': 1, 'tie_breakers': ['nrr'],
@@ -97,7 +102,7 @@ def competition_analysis(session, identity):
             'record_home_pct': round(chance * 100, 1) if supported and chance is not None else None,
             'record_samples': {name: (records[name]['won'] + records[name]['lost']) if name in records else 0 for name in (a, b)},
             'note': 'Exploratory estimate from smoothed win/loss records; no player, venue or in-play score model.' if enough else 'Comparable win/loss records are unavailable. Only an explicitly chosen equal-chance model is available.'})
-    return {**schedule, 'forecasts': forecasts, 'teams': teams, 'qualification_eligible': eligible,
+    return {**schedule, 'revision': source_revision(schedule, table['rows']), 'forecasts': forecasts, 'teams': teams, 'qualification_eligible': eligible,
         'qualification_blocker': reason, 'simulation_basis': 'Reconstructed from complete fetched fixture results, not filled-in provider table values.',
         'assumptions': ['User-selected Top K under a 2 points/win, 1/no-result, 0/loss model.',
             'NRR is unavailable; points ties are randomized. These are scenario-model estimates, not official qualification forecasts.']}

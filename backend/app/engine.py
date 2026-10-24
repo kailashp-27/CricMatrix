@@ -158,12 +158,17 @@ def simulate(snapshot, request):
     by_id = {t['id']: t for t in rows}
     points = np.tile([by_id[t['id']]['points'] for t in teams], (count, 1))
     wins = np.tile([by_id[t['id']]['won'] for t in teams], (count, 1))
-    pending = [m for m in snapshot['fixtures'] if m['outcome'] == 'pending' and m['id'] not in overrides]
+    pending = [m for m in snapshot['fixtures'] if m['outcome'] == 'pending']
     washout_probability = request.get('washout_probability', 0.03)
     for match in pending:
+        # Consume the same fixture samples in baseline and picked scenarios.
+        # Otherwise a pick shifts every later draw and adds avoidable noise
+        # to the per-team probability changes.
+        roll = rng.random(count)
+        if match['id'] in overrides:
+            continue
         a, b = index[match['home_id']], index[match['away_id']]
         p = 0.5 if request.get('model', 'equal') == 'equal' else 1 / (1 + 10 ** ((teams[b]['rating'] - teams[a]['rating']) / 400))
-        roll = rng.random(count)
         washout = roll < washout_probability
         home = (~washout) & (roll < washout_probability + (1 - washout_probability) * p)
         away = ~(washout | home)

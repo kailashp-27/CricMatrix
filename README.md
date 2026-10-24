@@ -131,6 +131,8 @@ For qualification scenarios, select an assumed number of qualifying spots, match
 
 Simulation rows are reconstructed from the complete fetched fixture schedule, including a team omitted from the provider table when its actual fixture results are available. Known table counts must agree with those results. Incomplete schedules, ambiguous finished results, conflicting counts, mixed-format tours, Tests and non-uniform/knockout stages block qualification simulation. Top K and 2/1/0 points are explicitly selected scenario assumptions; official advancement rules are not inferred. Unknown NRR ties are randomized. The optional record model uses smoothed fetched win/loss records and has not been validated as a real-world forecasting model.
 
+Baseline and scenario runs use paired random samples for unchanged fixtures and tie-breaks, reducing sampling noise in the displayed changes. Prediction requests include the source revision shown in the analysis; changed results are rejected until refreshed. Calculations from different revisions are never compared, and invalid or failed analysis updates hide older estimates.
+
 ## Docker with PostgreSQL, Redis and Celery
 
 Set `POSTGRES_PASSWORD` in `.env`, then:

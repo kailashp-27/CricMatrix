@@ -29,7 +29,7 @@ pool = ThreadPoolExecutor(max_workers=2)
 local_jobs = {}
 lock = threading.Lock()
 TTL = 3600
-ENGINE_VERSION = 3
+ENGINE_VERSION = 4
 
 
 def redis_client():

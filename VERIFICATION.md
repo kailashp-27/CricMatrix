@@ -1,5 +1,12 @@
 # Verification record
 
+## 24 October 2026 — resumed qualification review
+
+- Fixed baseline/scenario sample pairing: picking a result no longer shifts all later random draws. Unchanged fixtures and tie-breaks use the same seeded samples. Bumped the engine cache version so earlier unpaired jobs are not reused.
+- Added a source revision covering fixtures, table counts and schedule completeness. The UI sends its expected revision; the API rejects changed source data, and stale/ineligible analysis no longer leaves older estimates visible.
+- Regression tests check paired-sample monotonicity across 32 seeds, source revisions independent of fetch timestamps, and API rejection of outdated revisions. These changes do not increase provider polling or modify fetched match results.
+- Verification passed 74 backend tests, 9 frontend tests and the production build. The running browser calculated baseline chances, accepted a Nigeria win pick and updated all six team rows using the current source revision.
+
 ## 24 October 2026 — upcoming fixtures and qualification scenarios
 
 - Added top navigation for Tables & predictions and Cricket across competitions. The score feed now has its own tab; table selection drives the fetched schedule and prediction workspace.

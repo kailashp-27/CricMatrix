@@ -128,6 +128,8 @@ def provider_forecast(series_id: UUID, request: CompetitionForecastRequest, resp
         schedule = read_fixtures(session, str(series_id))
         rows = next(c['rows'] for c in read_tables(session)['competitions'] if c['id'] == str(series_id))
         snapshot = fixture_snapshot(schedule, rows, request.qualifying_spots)
+        if request.expected_revision is not None and request.expected_revision != snapshot['revision']:
+            raise ValueError('The fetched results changed. Refresh the table before calculating again.')
         validate_overrides(snapshot, request.overrides)
     except KeyError as exc:
         raise HTTPException(404, 'Competition is not in the fetched match catalog') from exc

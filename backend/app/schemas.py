@@ -44,6 +44,7 @@ class CompetitionForecastRequest(BaseModel):
     model_config = ConfigDict(extra='forbid')
     qualifying_spots: int = Field(ge=1, le=16)
     accept_points_assumptions: bool = False
+    expected_revision: int | None = Field(default=None, ge=0)
     model: Literal['equal', 'record'] = 'equal'
     overrides: dict[str, Outcome] = Field(default_factory=dict, max_length=200)
     iterations: int = Field(default=1000, ge=100, le=10000)
