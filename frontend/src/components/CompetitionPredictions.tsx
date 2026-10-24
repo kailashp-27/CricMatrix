@@ -72,8 +72,8 @@ export function CompetitionPredictions({ seriesId, refreshToken }: { seriesId: s
     else updated[id] = outcome
     return updated
   })
-  return <section className="prediction-workspace" aria-label="Qualification predictions and upcoming matches">
-    <div className="live-heading"><div><span className="tiny-label">NEXT MATCH / WHAT IF?</span><h2>See how each result changes the race</h2></div></div>
+  return <section id="predictions" className="prediction-workspace" aria-label="Qualification predictions and upcoming matches">
+    <div className="live-heading"><div><span className="tiny-label">NEXT MATCH / WHAT IF?</span><h2>Qualification predictions</h2></div></div>
     {loadError && <p className="error" role="alert">{loadError}</p>}
     {!analysis && !loadError && <p className="live-description">Loading the fetched schedule…</p>}
     {analysis && <>

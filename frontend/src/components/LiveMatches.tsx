@@ -35,7 +35,7 @@ export function LiveMatches() {
   const competitions = Array.from(new Map((feed?.matches || []).filter((m) => m.series_id).map((m) => [m.series_id!, m.series_name || `Series ${m.series_id!.slice(0, 8)}`])).entries())
   const provider = feed?.provider === 'cricketdata' ? 'CricketData' : 'ESPNcricinfo RSS'
   return <section className="live-panel" aria-label="Matches across competitions">
-    <div className="live-heading"><div><span className="tiny-label">AROUND THE GROUNDS</span><h2>Cricket across competitions</h2></div><button onClick={() => setRefresh((v) => v + 1)} disabled={loading}><RefreshCw size={13} className={loading ? 'spin' : ''} />Refresh</button></div>
+    <div className="live-heading"><div><span className="tiny-label">SCORES & RESULTS</span><h2>Matches across competitions</h2></div><button onClick={() => setRefresh((v) => v + 1)} disabled={loading}><RefreshCw size={13} className={loading ? 'spin' : ''} />Refresh</button></div>
     <p className="live-description">Follow the matches available from the score feed. Search teams and venues across domestic and international cricket.</p>
     <div className={`feed-status ${feed?.stale ? 'feed-stale' : ''}`} role="status">
       <strong>{!feed ? 'Loading score feed…' : !feed.enabled ? 'Score feed paused' : feed.stale ? 'Feed delayed / freshness unverified' : 'Score feed available'}</strong>
